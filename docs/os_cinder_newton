@@ -1,0 +1,134 @@
+
+dell_server_os option added to the Dell SC driver. This option allows the selection of the server type used when creating a server on the Dell DSM during initialize connection. This is only used if the server does not exist. Valid values are from the Dell DSM create server list.
+
+Added support for the use of live volume in place of standard replication in the Dell SC driver.
+
+Added replication failback support for the Dell SC driver.
+
+Added volume driver for Zadara Storage VPSA.
+
+Added a new config option scheduler_weight_handler. This is a global option which specifies how the scheduler should choose from a listed of weighted pools. By default the existing weigher is used which always chooses the highest weight.
+
+Added a new weight handler StochasticHostWeightHandler. This weight handler chooses pools randomly, where the random probabilities are proportional to the weights, so higher weighted pools are chosen more frequently, but not all the time. This weight handler spreads new shares across available pools more fairly.
+
+Allow API user to remove the consistency group name or description information.
+
+Support for snapshot backup using the optimal path in Huawei driver.
+
+Added REST API to update backup name and description.
+
+Report pools in volume stats for Block Device Driver.
+
+Updating the Datera Elastic DataFabric Storage Driver to version 2.1.  This adds ACL support, Multipath support and basic IP pool support.
+
+Changes config option default for datera_num_replicas from 1 to 3
+
+Support for use of ‘fc_southbound_protocol’ configuration setting in the Brocade FC SAN lookup service.
+
+Added Keystone v3 support for Swift backup driver in single user mode.
+
+Added volume backend drivers for CoprHD FC, iSCSI and Scaleio.
+
+HA A-A: Add cluster configuration option to allow grouping hosts that share the same backend configurations and should work in Active-Active fashion.
+
+HA A-A: Updated manage command to display cluster information on service listings.
+
+HA A-A: Added cluster subcommand in manage command to list, remove, and rename clusters.
+
+HA A-A: Added clusters API endpoints for cluster related operations (index, detail, show, enable/disable).  Index and detail accept filtering by name, binary, disabled, num_hosts, num_down_hosts, and up/down status (is_up) as URL parameters.  Also added their respective policies.
+
+Separate create and update rules for volume metadata.
+
+Capabilites List for Datera Volume Drivers
+
+Extended Volume-Type Support for Datera Volume Drivers
+
+Naming convention change for Datera Volume Drivers
+
+Volume Manage/Unmanage support for Datera Volume Drivers
+
+New BoolOpt datera_debug_override_num_replicas for Datera Volume Drivers
+
+Added using etags in API calls to avoid the lost update problem during deleting volume metadata.
+
+Configuration options for the DRBD driver that will be applied to DRBD resources; the default values should be okay for most installations.
+
+Added manage/unmanage volume support for Dell Equallogic driver.
+
+Added backend driver for FalconStor FreeStor.
+
+Added backend driver for Huawei FusionStorage.
+
+Introduced generic volume groups and added create/ delete/update/list/show APIs for groups.
+
+Added create/delete APIs for group snapshots and an API to create group from source.
+
+Added group type and group specs APIs.
+
+Added manage/unmanage snapshot support to the HNAS NFS driver.
+
+Add support for reporting pool disk type in Huawei driver.
+
+Add support for hybrid aggregates to the NetApp cDOT drivers.
+
+Volume manage/unmanage support for IBM FlashSystem FC and iSCSI drivers.
+
+Added support for querying volumes filtered by group_id using ‘group_id’ optional URL parameter. For example, “volumes/detail?group_id={consistency_group_id}”.
+
+New FC Cinder volume driver for Kaminario K2 all-flash arrays.
+
+New iSCSI Cinder volume driver for Kaminario K2 all-flash arrays.
+
+Added the ability to list manageable volumes and snapshots via GET operation on the /v2/<project_id>/os-volume-manage and /v2/<project_id>/os-snapshot-manage URLs, respectively.
+
+The v2 API extensions os-volume-manage and os-snapshot-manage have been mapped to the v3 resources manageable_volumes and manageable_snapshots
+
+Added host-level (whole back end replication - v2.1) replication support to the NetApp cDOT drivers (iSCSI, FC, NFS).
+
+Added Cinder consistency group for the NetApp NFS driver.
+
+Added HA support for NexentaEdge iSCSI driver
+
+Added NBD driver for NexentaEdge.
+
+Support for force backup of in-use Cinder volumes in Nimble driver.
+
+Add get_manageable_volumes and get_manageable_snapshots implementations for Pure Storage Volume Drivers.
+
+The xiv_ds8k driver now supports IBM XIV, Spectrum Accelerate, FlashSystem A9000, FlashSystem A9000R and DS8000 storage systems, and was renamed to IBM Storage Driver for OpenStack. The changes include text changes, file names, names of cinder.conf flags, and names of the proxy classes.
+
+Support for retype volumes with different encryptions including changes from unencrypted types to encrypted types and vice-versa.
+
+Added support for manage/unmanage snapshot in the ScaleIO driver.
+
+Added support for scaling QoS in the ScaleIO driver. The new QoS keys are maxIOPSperGB and maxBWSperGB.
+
+Added support for oversubscription in thin provisioning in the ScaleIO driver. Volumes should have extra_specs with the key provisioning:type with value equals to either ‘thick’ or ‘thin’. max_oversubscription_ratio can be defined by the global config or for ScaleIO specific with the config option sio_max_over_subscription_ratio. The maximum oversubscription ratio supported at the moment is 10.0.
+
+Added v2.1 replication support to SolidFire driver.
+
+Added consistency group support to the Huawei driver.
+
+Added support for querying volumes filtered by glance metadata key/value using ‘glance_metadata’ optional URL parameter. For example, “volumes/detail?glance_metadata={“image_name”:”xxx”}”.
+
+Added supported driver checks on all drivers.
+
+Added backend driver for Synology iSCSI-supported storage.
+
+Added support for vhd and vhdx disk-formats for volume upload-to-image.
+
+Support for iSCSI multipathing in EMC VMAX driver.
+
+Added oversubscription support in the VMAX driver
+
+QoS support in EMC VMAX iSCSI and FC drivers.
+
+Added backend driver for Violin Memory 7000 iscsi storage.
+
+New Cinder driver based on storops library (available in pypi) for EMC VNX.
+
+A new API to display the volumes summary. This summary API displays the total number of volumes and total volume’s size in GB.
+
+Added snapshot manage/unmanage support to the EMC XtremIO driver.
+
+Added backend driver for ZTE iSCSI storage.

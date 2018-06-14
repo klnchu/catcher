@@ -1,0 +1,203 @@
+
+Add support to force detach a volume from all hosts on VNX.
+
+Kaminario K2 iSCSI driver now supports non discovery multipathing (Nova and
+Cinder won’t use iSCSI sendtargets) which can be enabled by setting
+disable_discovery to true in the configuration.
+
+RBD driver supports returning a static total capacity value instead of a
+dynamic value like it’s been doing.  Configurable with
+report_dynamic_total_capacity configuration option.
+
+HPE 3PAR driver adds following functionalities Creating thin/dedup compresssed volume. Retype for tpvv/tdvv volumes to be compressed. Migration of compressed volumes. Create compressed volume from compressed volume/snapshot source. Compression support to create cg from source.
+
+Added consistency group capability to generic volume groups in the HPE 3PAR driver.
+
+Add consistent group capability to generic volume groups in Lefthand driver.
+
+Add consistent group capability to generic volume groups in the SolidFire driver.
+
+Added attribute connection_info to attachment object.
+
+Add filters support to get_pools API v3.28.
+
+Added like operator support to filters for the following resources:
+- volume
+- snapshot
+- backup
+- group
+- group-snapshot
+- attachment
+- message
+
+
+
+
+Added periodic task to clean expired messages in cinder scheduler, also added a configuration option message_reap_interval to handle the interval.
+
+Added resource_filters API to retrieve configured resource filters.
+
+Add revert to snapshot API and support in LVM driver.
+
+Add volume-type filter to API Get-Pools
+
+Added RBD keyring configuration parameter rbd_keyring_conf to define
+custom path of Ceph keyring file.
+
+Allow users to specify the copy speed while using Huawei driver to create volume from snapshot or clone volume, by the new added metadata ‘copyspeed’. For example, user can add –metadata copyspeed=1 when creating volume from source volume/snapshot. The valid optional range of copyspeed is [1, 2, 3, 4], respectively representing LOW, MEDIUM, HIGH and HIGHEST.
+
+Added new BoolOpt backup_ceph_image_journals for enabling the Ceph image features required to support RBD mirroring of Cinder backup pool.
+
+Add user_id field to snapshot list/detail and snapshot show.
+
+Add consistent group capability to generic volume groups in CoprHD driver.
+
+Added datera_disable_profiler boolean config option.
+
+Added Cinder fast-retype support to Datera EDF driver.
+
+Added Volume Placement extra-specs support to Datera EDF driver.
+
+Fixed ACL multi-attach bug in Datera EDF driver.
+
+Fixed a few scalability bugs in the Datera EDF driver.
+
+Add consistency group capability to Generic Volume Groups in the Dell EMC SC driver.
+
+Add replication consistency group support in DS8K cinder driver.
+
+DS8K driver adds two new properties into extra-specs so that user can specify pool or lss or both of them to allocate volume in their expected area.
+
+Added ability to specify multiple storage pools in the FalconStor driver.
+
+Added generalized resource filter support in list volume, list backup, list snapshot, list group, list group-snapshot, list attachment, list message and list pools APIs.
+
+Generic group is added into quota management.
+
+Added consistent group capability to generic volume groups in GPFS driver.
+
+Add CG capability to generic volume groups in Huawei driver.
+
+Add mirrored volume support in IBM SVC/Storwize driver.
+
+In IBM Storwize_SVC driver, user could specify only one IO
+group per backend definition. The user now may specify a comma separated
+list of IO groups, and at the time of creating the volume, the driver will
+select an IO group which has the least number of volumes associated with
+it. The change is backward compatible, meaning single value is still
+supported.
+
+Added support for volume compression in INFINIDAT driver. Compression is available on InfiniBox 3.0 onward. To enable volume compression, set infinidat_use_compression to True in the backend section in the Cinder configuration file.
+
+Add CG capability to generic volume groups in INFINIDAT driver.
+
+Support for iSCSI in INFINIDAT InfiniBox driver.
+
+Added support for QoS in the INFINIDAT InfiniBox driver. QoS is available on InfiniBox 4.0 onward.
+
+Added support for get all distinct volumes’ metadata from volume-summary API.
+
+Enable backup snapshot optimal path by implementing attach and detach snapshot in the NEC driver.
+
+Added generic volume group capability to NetApp cDot drivers with support for write consistent group snapshots.
+
+a [nova] section is added to configure the connection to the compute service, which is needed to the InstanceLocalityFilter, for example.
+
+Availability zones may now be configured per backend in a multi-backend
+configuration. Individual backend sections can now set the configuration
+option backend_availability_zone. If set, this value will override
+the [DEFAULT] storage_availability_zone setting.
+
+Added periodic task to clean expired reservation in cinder scheduler. Added a configuration option reservation_clean_interval to handle the interval.
+
+Added consistent group capability to generic volume groups in ProphetStor driver.
+
+Allow rbd driver to manage existing snapshot.
+
+Introduced replication group support and added group action APIs
+enable_replication, disable_replication, failover_replication and
+list_replication_targets.
+
+Added consistency group support to generic volume groups in ScaleIO Driver.
+
+Added ability to list all manageable volumes within ScaleIO Driver.
+
+Added new APIs on microversion 3.32 to support dynamically changing log
+levels in Cinder services without restart as well as retrieving current log
+levels, which is an easy way to ping via the message broker a service.
+
+New config format to allow for using shared Volume Driver configuration defaults via the [backend_defaults] stanza. Config options defined there will be used as defaults for each backend enabled via enabled_backends.
+
+The SMBFS driver now exposes share information to the scheduler via pools.
+The pool names are configurable, defaulting to the share names.
+
+Add consistency group capability to generic volume groups in Storwize drivers.
+
+Add global mirror with change volumes(gmcv) support and user can manage gmcv replication volume by SVC driver. An example to set a gmcv replication volume type, set property replication_type as “<in> gmcv”, property replication_enabled as “<is> True” and set property drivers:cycle_period_seconds as 500.
+
+Add ability to extend in-use volume. User should be aware of the
+whole environment before using this feature because it’s dependent
+on several external factors below:
+
+nova-compute version - needs to be the latest for Pike.
+only the libvirt compute driver supports this currently.
+only iscsi and fibre channel volume types are supported on the nova side currently.
+
+Administrator can disable this ability by updating the
+volume:extend_attached_volume policy rule.
+
+
+nova-compute version - needs to be the latest for Pike.
+only the libvirt compute driver supports this currently.
+only iscsi and fibre channel volume types are supported on the nova side currently.
+
+Added metadata support for backup source. Now users can create/update metadata for a specified backup.
+
+Supported project_id admin filters to limits API.
+
+Add support for sorting backups by “name”.
+
+Support to sort snapshots with “name”.
+
+Add thin clone support in the Unity driver. Unity storage supports the thin clone of a LUN from OE version 4.2.0. It is more efficient than the dd solution. However, there is a limit of thin clone inside each LUN family. Every time the limit reaches, a new LUN family will be created by a dd-copy, and then the volume clone afterward will use the thin clone of the new LUN family.
+
+The cinder-manage online_data_migrations command now prints a tabular summary of completed and remaining records. The goal here is to get all your numbers to zero. The previous execution return code behavior is retained for scripting.
+
+Added NFS based driver for Veritas Access.
+
+Add consistent group snapshot support to generic volume groups in
+VMAX driver version 3.0.
+
+VMAX driver version 3.0, replacing SMI-S with Unisphere REST.
+This driver supports VMAX3 hybrid and All Flash arrays.
+
+Adding compression functionality to VMAX driver version 3.0.
+
+Adding Live Migration functionality to VMAX driver version 3.0.
+
+Adding Qos functionality to VMAX driver version 3.0.
+
+Adding Replication V2.1 functionality to VMAX driver version 3.0.
+
+Add retype functionality to VMAX driver version 3.0.
+
+VMware VMDK driver now supports volume type extra-spec
+option vmware:adapter_type to specify the adapter
+type of volumes in vCenter server.
+
+Added config option vmware_adapter_type for the VMware VMDK driver to specify the default adapter type for volumes in vCenter server.
+
+Adds QoS support for VNX Cinder driver.
+
+Add consistent replication group support in VNX cinder driver.
+
+Added volume backend driver for Veritas HyperScale storage.
+
+The Windows iSCSI driver now returns multiple portals when available
+and multipath is requested.
+
+Add consistent group capability to generic volume groups in XIV, Spectrum Accelerate and A9000/R storage systems.
+
+Added independent and shared types for qos classes in XIV & A9000. Shared type enables to share bandwidth and IO rates between volumes of the same class. Independent type gives each volume the same bandwidth and IO rates without being affected by other volumes in the same qos class.
+
+Add consistency group replication support in XIVA9000 Cinder driver.

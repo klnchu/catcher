@@ -1,0 +1,554 @@
+
+Added the StorPool libvirt volume attachment driver.
+
+The libvirt driver now supports booting instances by asking for virtual
+GPUs.
+In order to support that, the operators should specify the enabled vGPU
+types in the nova-compute configuration file by using the configuration
+option [devices]/enabled_vgpu_types. Only the enabled vGPU types can be
+used by instances.
+For knowing which types the physical GPU driver supports for libvirt, the
+operator can look at the sysfs by doing:
+ls /sys/class/mdev_bus/<device>/mdev_supported_types
+
+
+Operators can specify a VGPU resource in a flavor by adding in the flavor’s
+extra specs:
+nova flavor-key <flavor-id> set resources:VGPU=1
+
+
+That said, Nova currently has some caveats for using vGPUs.
+
+For the moment, only a single type can be supported across one compute
+node, which means that libvirt will create the vGPU by using that
+specific type only. It’s also possible to have two compute nodes having
+different types but there is no possibility yet to specify in the flavor
+which specific type we want to use for that instance.
+Suspending a guest having vGPUs doesn’t work yet given a libvirt concern
+(it can’t hot-unplug mediated devices from a guest). Workarounds using
+other instance actions (like snapshotting the instance or shelving it)
+are recommended until libvirt supports that. If a user asks to suspend
+the instance, Nova will get an exception that will set the instance state
+back to ACTIVE, and you can see the suspend action in
+os-instance-action API will be Error.
+Resizing an instance with a new flavor that has vGPU resources doesn’t
+allocate those vGPUs to the instance (the instance is created without
+vGPU resources). We propose to work around this problem by rebuilding the
+instance once it has been resized so then it will have allocated vGPUs.
+Migrating an instance to another host will have the same problem as
+resize. In case you want to migrate an instance, make sure to rebuild
+it.
+Rescuing an instance having vGPUs will mean that the rescue image won’t
+use the existing vGPUs. When unrescuing, it will use again the existing
+vGPUs that were allocated to the instance. That said, given Nova looks
+at all the allocated vGPUs when trying to find unallocated ones, there
+could be a race condition if an instance is rescued at the moment a new
+instance asking for vGPUs is created, because both instances could use
+the same vGPUs. If you want to rescue an instance, make sure to disable
+the host until we fix that in Nova.
+Mediated devices that are created by the libvirt driver are not persisted
+upon reboot. Consequently, a guest startup would fail since the virtual
+device wouldn’t exist. In order to prevent that issue, when restarting
+the compute service, the libvirt driver now looks at all the guest XMLs
+to check if they have mediated devices, and if the mediated device no
+longer exists, then Nova recreates it by using the same UUID.
+If you use NVIDIA GRID cards, please know that there is a limitation with
+the NVIDIA driver that prevents one guest to have more than one virtual
+GPU from the same physical card. One guest can have two or more virtual
+GPUs but then it requires each vGPU to be hosted by a separate physical
+card. Until that limitation is removed, please avoid creating flavors
+asking for more than one vGPU.
+
+We are working actively to remove or workaround those caveats, but please
+understand that for the moment this feature is experimental given all the
+above.
+
+
+For the moment, only a single type can be supported across one compute
+node, which means that libvirt will create the vGPU by using that
+specific type only. It’s also possible to have two compute nodes having
+different types but there is no possibility yet to specify in the flavor
+which specific type we want to use for that instance.
+Suspending a guest having vGPUs doesn’t work yet given a libvirt concern
+(it can’t hot-unplug mediated devices from a guest). Workarounds using
+other instance actions (like snapshotting the instance or shelving it)
+are recommended until libvirt supports that. If a user asks to suspend
+the instance, Nova will get an exception that will set the instance state
+back to ACTIVE, and you can see the suspend action in
+os-instance-action API will be Error.
+Resizing an instance with a new flavor that has vGPU resources doesn’t
+allocate those vGPUs to the instance (the instance is created without
+vGPU resources). We propose to work around this problem by rebuilding the
+instance once it has been resized so then it will have allocated vGPUs.
+Migrating an instance to another host will have the same problem as
+resize. In case you want to migrate an instance, make sure to rebuild
+it.
+Rescuing an instance having vGPUs will mean that the rescue image won’t
+use the existing vGPUs. When unrescuing, it will use again the existing
+vGPUs that were allocated to the instance. That said, given Nova looks
+at all the allocated vGPUs when trying to find unallocated ones, there
+could be a race condition if an instance is rescued at the moment a new
+instance asking for vGPUs is created, because both instances could use
+the same vGPUs. If you want to rescue an instance, make sure to disable
+the host until we fix that in Nova.
+Mediated devices that are created by the libvirt driver are not persisted
+upon reboot. Consequently, a guest startup would fail since the virtual
+device wouldn’t exist. In order to prevent that issue, when restarting
+the compute service, the libvirt driver now looks at all the guest XMLs
+to check if they have mediated devices, and if the mediated device no
+longer exists, then Nova recreates it by using the same UUID.
+If you use NVIDIA GRID cards, please know that there is a limitation with
+the NVIDIA driver that prevents one guest to have more than one virtual
+GPU from the same physical card. One guest can have two or more virtual
+GPUs but then it requires each vGPU to be hosted by a separate physical
+card. Until that limitation is removed, please avoid creating flavors
+asking for more than one vGPU.
+
+Add support, in new placement microversion 1.16, for a limit query
+parameter when making a GET /allocation_candidates request. The
+parameter accepts an integer value, N, which limits the number of
+candidates returned. A new configuration item
+[placement]/randomize_allocation_candidates, defaulting to False,
+controls how the limited results are chosen. If True, a random sampling
+of the entire result set is taken, otherwise the first N results are
+returned.
+
+Add required query parameter to the GET /allocation_candidates API
+in new placement microversion 1.17. The parameter accepts a list of traits
+separated by ,, which is used to further limit the list of allocation
+requests to resource providers that have the capacity to fulfill the
+requested resources AND collectively have all of the required traits
+associated with them. In the same microversion, the provider summary
+includes the traits associated with each provider.
+
+Add pagination support and changes-since filter for os-instance-actions
+API. Users can now use limit and marker to perform paginated query
+when listing instance actions. Users can also use changes-since filter
+to filter the results based on the last time the instance action was
+updated.
+
+Added pagination support for migrations, there are four changes:
+Add pagination support and changes-since filter for os-migrations
+API. Users can now use limit and marker to perform paginate query
+when listing migrations.
+Users can also use changes-since filter to filter the results based
+on the last time the migration record was updated.
+GET /os-migrations,
+GET /servers/{server_id}/migrations/{migration_id} and
+GET /servers/{server_id}/migrations will now return a uuid value in
+addition to the migrations id in the response.
+The query parameter schema of the GET /os-migrations API no longer
+allows additional properties.
+
+
+
+Add pagination support and changes-since filter for os-migrations
+API. Users can now use limit and marker to perform paginate query
+when listing migrations.
+Users can also use changes-since filter to filter the results based
+on the last time the migration record was updated.
+GET /os-migrations,
+GET /servers/{server_id}/migrations/{migration_id} and
+GET /servers/{server_id}/migrations will now return a uuid value in
+addition to the migrations id in the response.
+The query parameter schema of the GET /os-migrations API no longer
+allows additional properties.
+
+The 2.57 microversion makes the following changes:
+
+The user_data parameter is added to the server rebuild API.
+The personality parameter is removed from the server create and
+rebuild APIs. Use the user_data parameter instead.
+The maxPersonality and maxPersonalitySize limits are excluded
+from the GET /limits API response.
+The injected_files, injected_file_content_bytes and
+injected_file_path_bytes quotas are removed from the
+os-quota-sets and os-quota-class-sets APIs.
+
+See the spec for more details and reasoning.
+
+
+The user_data parameter is added to the server rebuild API.
+The personality parameter is removed from the server create and
+rebuild APIs. Use the user_data parameter instead.
+The maxPersonality and maxPersonalitySize limits are excluded
+from the GET /limits API response.
+The injected_files, injected_file_content_bytes and
+injected_file_path_bytes quotas are removed from the
+os-quota-sets and os-quota-class-sets APIs.
+
+When creating a baremetal instance with volumes, the ironic driver will
+now pass an IP address of an iSCSI initiator to the block storage service
+because the volume backend may require the IP address for access control.
+If an IP address is set to an ironic node as a volume connector resource,
+the address is used. If a node has MAC addresses as volume connector
+resources, an IP address is retrieved from VIFs associated with the MAC
+addresses. IPv4 addresses are given priority over IPv6 addresses if both
+are available.
+
+A new param key_name was added to the instance rebuild API (v2.54),
+then it is able to reset instance key pair. It is worth noting that
+users within the same project are able to rebuild other user’s instances
+in that project with a new keypair.
+If set key_name to None in API body, nova will unset the keypair of
+instance during rebuild.
+
+Added support for service create and destroy versioned notifications.
+The service.create notification will be emitted after the service is
+created (so the uuid is available) and also send the service.delete
+notification after the service is deleted.
+
+The 1.12 version of the placement API changes handling of the PUT
+/allocations/{consumer_uuid} request to use a dict-based structure for
+the JSON request body to make it more aligned with the response body of
+GET /allocations/{consumer_uuid}. Because PUT requires user_id
+and project_id in the request body, these fields are added to the
+GET response. In addition, the response body for
+GET /allocation_candidates is updated so the allocations in the
+allocation_requests object work with the new PUT format.
+
+Add support for graceful shutdown of VMware instances. The timeout parameter of the power_off
+method is now considered by the VMware driver. If you specify a timeout greater than 0, the
+driver calls the appropriate soft shutdown method of the VMware API and only forces a hard
+shutdown if the soft shutdown did not succeed before the timeout is reached.
+
+The delete_host command has been added in nova-manage cell_v2
+to delete a host from a cell (host mappings).
+The force option has been added in nova-manage cell_v2 delete_cell.
+If the force option is specified, a cell can be deleted
+even if the cell has hosts.
+
+The nova-manage cell_v2 delete_cell command returns an exit code 4
+when there are instance mappings to a cell to delete but all instances
+have been deleted in the cell.
+
+Add a nova-manage cell_v2 list_hosts command for listing hosts
+in one or all v2 cells.
+
+When cold migrating a server, the host parameter is available as of microversion 2.56. The target host is checked by the scheduler.
+
+The following instance action records have been added:
+attach_interface
+detach_interface
+attach_volume
+detach_volume
+swap_volume
+lock
+unlock
+shelveOffload
+createBackup
+createImage
+
+
+
+attach_interface
+detach_interface
+attach_volume
+detach_volume
+swap_volume
+lock
+unlock
+shelveOffload
+createBackup
+createImage
+
+Microversion 2.55 adds a description field to the flavor resource in
+the following APIs:
+
+GET /flavors
+GET /flavors/detail
+GET /flavors/{flavor_id}
+POST /flavors
+PUT /flavors/{flavor_id}
+
+The embedded flavor description will not be included in server
+representations.
+A new policy rule os_compute_api:os-flavor-manage:update is added
+to control access to the PUT /flavors/{flavor_id} API.
+
+
+GET /flavors
+GET /flavors/detail
+GET /flavors/{flavor_id}
+POST /flavors
+PUT /flavors/{flavor_id}
+
+The payload of the instance.snapshot.start and
+instance.snapshot.end notifications have been extended with the
+snapshot_image_id field that contains the image id of the snapshot
+created. This change also causes that the type of the payload object has
+been changed from InstanceActionPayload version 1.5 to
+InstanceActionSnapshotPayload version 1.6. See the
+notification dev reference for the sample file of
+instance.snapshot.start as an example.
+
+The following legacy notifications have been transformed to
+a new versioned payload:
+
+aggregate.add_host
+aggregate.remove_host
+instance.evacuate
+instance.interface_attach
+instance.interface_detach
+instance.live_migration_abort
+instance.live_migration_pre
+instance.rescue
+instance.resize_confirm
+instance.resize_prep
+instance.resize_revert
+instance.resize.error
+instance.trigger_crash_dump
+instance.unrescue
+keypair.delete
+keypair.import
+server_group.create
+server_group.delete
+
+Every versioned notification has a sample file stored under
+doc/notification_samples directory. Consult
+https://docs.openstack.org/nova/latest/reference/notifications.html for
+more information.
+
+
+aggregate.add_host
+aggregate.remove_host
+instance.evacuate
+instance.interface_attach
+instance.interface_detach
+instance.live_migration_abort
+instance.live_migration_pre
+instance.rescue
+instance.resize_confirm
+instance.resize_prep
+instance.resize_revert
+instance.resize.error
+instance.trigger_crash_dump
+instance.unrescue
+keypair.delete
+keypair.import
+server_group.create
+server_group.delete
+
+Configuration options for oslo.reports, found in the oslo_reports
+group, are now exposed in nova. These include:
+
+log_dir
+file_event_handler
+file_event_handler_interval
+
+These will allow using a file trigger for the reports, which is
+particularly useful for Windows nodes where the default signals are not
+available. Also, specifying a log directory will allow the reports to be
+generated at a specific location instead of stdout.
+
+
+log_dir
+file_event_handler
+file_event_handler_interval
+
+A new 1.11 API microversion is added to the Placement REST API.  This adds
+the resource_providers/{rp_uuid}/allocations link to the  links
+section of the response from GET /resource_providers.
+
+Throughout the Placement API, in microversion 1.15, ‘last-modified’ headers
+have been added to GET responses and those PUT and POST responses that have
+bodies. The value is either the actual last modified time of the most
+recently modified associated database entity or the current time if there
+is no direct mapping to the database. In addition,
+‘cache-control: no-cache’ headers are added where the ‘last-modified’
+header has been added to prevent inadvertent caching of resources.
+
+New placement REST API microversion 1.14 is added to support nested resource providers. Users of the placement REST API can now pass a in_tree=<UUID> parameter to the GET /resource_providers REST API call.  This will trigger the placement service to return all resource provider records within the “provider tree” of the resource provider with the supplied UUID value. The resource provider representation now includes a parent_provider_uuid value that indicates the UUID of the immediate parent resource provider, or null if the provider has no parent. For convenience, the resource provider resource also contains a root_provider_uuid field that is populated with the UUID of the top-most resource provider in the provider tree.
+
+Microversion 1.13 of the Placement API gives the ability to set or clear
+allocations for more than one consumer uuid with a request to
+POST /allocations.
+
+QEMU 2.6.0 and Libvirt 2.2.0 allow LUKS encrypted RAW files, block devices
+and network devices (such as rbd) to be decrypted natively by QEMU.
+If qemu >= 2.6.0 and libvirt >= 2.2.0 are installed and the volume
+encryption provider is ‘luks’, the libvirt driver will use native QEMU
+decryption for encrypted volumes. The libvirt driver will generate a secret
+to hold the LUKS passphrase for unlocking the volume and the volume driver
+will use the secret to generate the required encryption XML for the disk.
+QEMU will then be able to read from and write to the encrypted disk
+natively, without the need of os-brick encryptors.
+Instances that have attached encrypted volumes from before Queens will
+continue to use os-brick encryptors after a live migration or direct
+upgrade to Queens. A full reboot or another live migration between Queens
+compute hosts is required before the instance will attempt to use QEMU
+native LUKS decryption.
+
+
+Now when you rebuild a baremetal instance, a new config drive
+will be generated for the node based on the passed in personality files,
+metadata, admin password, etc. This fix requires Ironic API 1.35.
+
+Added traits support to the scheduler. A new flavor extra spec is added to
+support specifying the required traits. The syntax of extra spec is
+trait:<trait_name>=required, for example:
+
+trait:HW_CPU_X86_AVX2=required
+trait:STORAGE_DISK_SSD=required
+
+The scheduler will pass required traits to the
+GET /allocation_candidates endpoint in the Placement API to include
+only resource providers that can satisfy the required traits. Currently
+the only valid value is required. Any other value will be considered
+invalid.
+This requires that the Placement API version 1.17 is available before
+the nova-scheduler service can use this feature.
+The FilterScheduler is currently the only scheduler driver that supports
+this feature.
+
+
+trait:HW_CPU_X86_AVX2=required
+trait:STORAGE_DISK_SSD=required
+
+Added support for PCI device NUMA affinity policies. These allow you to
+configure how strict your NUMA affinity should be on a per-device basis or,
+more specifically, per device alias. These are configured as part of the
+[pci]alias configuration option(s).
+There are three policies supported:
+
+required (must-have)
+legacy (must-have-if-available) (default)
+preferred (nice-to-have)
+
+In all cases, strict NUMA affinity is provided if possible. The key
+difference between the policies is how much NUMA affinity one is willing to
+forsake before failing to schedule.
+
+
+required (must-have)
+legacy (must-have-if-available) (default)
+preferred (nice-to-have)
+
+This release adds support to attach a volume to multiple
+server instances. The feature can only be used in Nova if the
+volume is created in Cinder with the multiattach flag set
+to True. It is the responsibility of the user to use a
+proper filesystem in the guest that supports shared read/write access.
+This feature is currently only supported by the libvirt compute driver
+and only then if qemu<2.10 or libvirt>3.10 on the compute host.
+API restrictions:
+
+Compute API microversion 2.60 must be used to create a server from
+a multiattach volume or to attach a multiattach volume to an existing
+server instance.
+When creating a server using a multiattach volume, the API will check
+if the compute services have all been upgraded to a minimum level of
+support and will fail with a 409 HTTPConflict response if the computes
+are not yet upgraded.
+Attaching a multiattach volume to a shelved offloaded instance is not
+supported and will result in a 400 HTTPBadRequest response.
+Attaching a multiattach volume to an existing server instance will check
+that the compute hosting that instance is new enough to support it and
+has the capability to support it. If the compute cannot support the
+multiattach volume, a 409 HTTPConflict response is returned.
+
+See the Cinder enable multiattach spec for details on configuring
+Cinder for multiattach support.
+
+
+Compute API microversion 2.60 must be used to create a server from
+a multiattach volume or to attach a multiattach volume to an existing
+server instance.
+When creating a server using a multiattach volume, the API will check
+if the compute services have all been upgraded to a minimum level of
+support and will fail with a 409 HTTPConflict response if the computes
+are not yet upgraded.
+Attaching a multiattach volume to a shelved offloaded instance is not
+supported and will result in a 400 HTTPBadRequest response.
+Attaching a multiattach volume to an existing server instance will check
+that the compute hosting that instance is new enough to support it and
+has the capability to support it. If the compute cannot support the
+multiattach volume, a 409 HTTPConflict response is returned.
+
+Added a new boolean configuration option
+[filter_scheduler]shuffle_best_same_weighed_hosts (default is False).
+Enabling it will spread instances between hosts that have the same weight
+according to request spec. It is mostly useful when the
+[filter_scheduler]host_subset_size option has default value of 1,
+but available hosts have the same weight (e.g. ironic nodes using resource
+classes). In this case enabling it will decrease the number of
+rescheduling events.
+On the other hand, enabling it will make packing of VMs on hypervizors
+less dence even when host weighing is disabled.
+
+
+When IP address substring filtering extension is available in Neutron, Nova will proxy the instance list with ip or ip6 filter to Neutron for better performance.
+
+When using XenAPI driver for XenServer, we can support booting instances
+with a vGPU attached to get better graphics processing capability.
+In order to use this feature, the operators should specify the enabled
+vGPU types in the nova compute configuration file with the configuration
+option - [devices]/enabled_vgpu_types. Only the enabled vGPU types
+can be used by instances.
+XenServer automatically detects and groups together identical physical
+GPUs. Although the physical GPUs may support multiple vGPU types, at
+the moment nova only supports a single vGPU type for each compute node.
+The operators can run the following CLI commands in XenServer to get
+the available vGPU types if the host supports vGPU:
+xe vgpu-type-list
+
+
+The values of model-name ( RO): from the output of the above commands
+are the vGPU type names which you can choose from to set the nova
+configure - [devices]/enabled_vgpu_types. Please choose only one
+vGPU type to be enabled.
+The operators should specify a vGPU resource in the flavor’s extra_specs:
+nova flavor-key <flavor-id> set resources:VGPU=1
+
+
+Then users can use the flavor to boot instances with a vGPU attached.
+At the moment, XenServer doesn’t support multiple vGPUs for a single
+instance, so resources:VGPU in the flavor’s extra_specs should
+always be 1.
+
+
+The VMware vCenter compute driver now supports booting from images
+which specify they require UEFI or BIOS firmware, using the
+hw_firmware_type image metadata.
+
+VMware serial console log is completed. VSPC must be deployed along
+with nova-compute and configured properly. The [vmware]/serial_log_dir
+config option must have the same value in both nova.conf and vspc.conf.
+
+Added a number of new configuration options to the [vnc] group, which
+together allow for the configuration of authentication used between the
+nova-novncproxy server and the compute node VNC server.
+
+auth_schemes
+vencrypt_client_key
+vencrypt_client_cert
+vencrypt_ca_certs
+
+For more information, refer to the documentation.
+
+
+auth_schemes
+vencrypt_client_key
+vencrypt_client_cert
+vencrypt_ca_certs
+
+The nova-novncproxy server can now be configured to do a security
+negotiation with the compute node VNC server. If the VeNCrypt auth scheme
+is enabled, this establishes a TLS session to provide encryption of all
+data. The proxy will validate the x509 certs issued by the remote server to
+ensure it is connecting to a valid compute node. The proxy can also send
+its own x509 cert to allow the compute node to validate that the connection
+comes from the official proxy server.
+To make use of VeNCrypt, configuration steps are required for both the
+nova-novncproxy service and libvirt on all the compute nodes. The
+/etc/libvirt/qemu.conf file should be modified to set the vnc_tls
+option to 1, and optionally the vnc_tls_x509_verify option to
+1. Certificates must also be deployed on the compute node.
+The nova.conf file should have the auth_schemes parameter in the
+vnc group set. If there are a mix of compute nodes, some with VeNCrypt
+enabled and others with it disabled, then the auth_schemes
+configuration option should be set to ['vencrypt', 'none'].
+Once all compute nodes have VeNCrypt enabled, the auth_schemes
+parameter can be set to just ['vencrypt'].
+For more information, refer to the documentation.
+

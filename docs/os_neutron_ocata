@@ -1,0 +1,36 @@
+
+L2 agents based on ML2 _common_agent have now the L2 extension API
+available. This API can be used by L2 extension drivers to request
+resources from the L2 agent.
+It is used, for example, to pass an instance of the IptablesManager
+to the Linuxbridge L2 agent QoS extension driver.
+
+Some scenario tests require advanced Glance images (for example,
+Ubuntu or CentOS) in order to pass. They are now skipped by
+default. If you need to execute those tests, please configure
+tempest.conf to use an advanced image, and set image_is_advanced in
+neutron_plugin_options section of tempest.conf file to True.
+The first scenario test case that requires the new option set to execute is
+test_trunk.
+
+Middleware was added to parse the X-Forwarded-Proto HTTP header or the Proxy protocol in order to help Neutron respond with the correct URL references when it’s put behind a TLS proxy such as haproxy. This adds http_proxy_to_wsgi middleware to the pipeline. This middleware is disabled by default, but can be enabled via a configuration option in the [oslo_middleware] group.
+
+The Linux Bridge agent now supports QoS DSCP marking rules.
+
+Keepalived VRRP health check functionality to enable verification of connectivity from the “master” router to all gateways. Activation of this feature enables gateway connectivity validation and rescheduling of the “master” router to another node when connectivity is lost. If all routers lose connectivity to the gateways, the election process will be repeated round-robin until one of the routers restores its gateway connection. In the mean time, all of the routers will be reported as “master”.
+
+Add a new configuration section, [placement], with two new options that allow to make segments plugin to use the Compute placement ReST API. This API allows to influence node placement of instances based on availability of IPv4 addresses in routed networks. The first option, region_name, indicates the placement region to use. This option is useful if keystone manages more than one region. The second option, endpoint_type, determines the type of a placement endpoint to use. This endpoint will be looked up in the keystone catalog and should be one of public, internal or admin.
+
+Designate driver can now use Keystone v3 authentication options.  “The [designate] section now accepts the auth_type option, as well as other keystoneauth options (e.g. auth_url, username, user_domain_name, password, project_name, project_domain_name).”
+
+Resource tag mechanism now supports subnet, port, subnetpool and router resources.
+
+A new mechanism has been added to the neutron-netns-cleanup tool that allows to kill processes listening on any Unix or network socket within a namespace. The new mechanism will try to kill those processes gracefully using the SIGTERM signal and, if they refuse to die, then the SIGKILL signal will be sent to each remaining process to ensure a proper cleanup.
+
+The QoS driver architecture has been refactored to overcome several previous limitations, the main one was the coupling of QoS details into the mechanism drivers, and the next one was the need of configuration knobs to enable each specific notification driver, that will be handled automatically from now on.
+
+The created_at and updated_at resource fields now include a timezone indicator at the end.  Because this is a change in field format, the old timestamp_core extension has been removed and replaced with a standard-attr-timestamp extension.
+
+Initial support for oslo.privsep has been added. Most external commands are still executed using oslo.rootwrap.
+
+vhost-user reconnect is a mechanism  which allows a vhost-user frontend to reconnect to a vhost-user backend in the event the backend terminates either as a result of a graceful shutdown or a crash.  This allows a VM utilising a vhost-user interface to reconnect automatically to the backend e.g.  Open vSwitch without requiring the VM to reboot.  In this release, support was added to the neutron Open vSwitch agent and ml2 driver for vhost-user reconnect.

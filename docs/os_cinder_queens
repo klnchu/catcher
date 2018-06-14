@@ -1,0 +1,198 @@
+
+Dell EMC Unity Driver: Adds support for removing empty host. The new option
+named remove_empty_host could be configured as True to notify Unity
+driver to remove the host after the last LUN is detached from it.
+
+When using the RBD pool exclusively for Cinder we can now set
+rbd_exclusive_cinder_pool to true and Cinder will use DB information
+to calculate provisioned size instead of querying all volumes in the
+backend, which will reduce the load on the Ceph cluster and the volume
+service.
+
+Cinder-manage DB sync command can now bump the RPC and Objects versions of the services to avoid a second restart when doing offline upgrades.
+
+Dell EMC Unity Cinder driver allows enabling/disabling the SSL verification. Admin can set True or False for driver_ssl_cert_verify to enable or disable this function, alternatively set the driver_ssl_cert_path=<PATH> for customized CA path. Both above 2 options should go under the driver section.
+
+Add support to force detach a volume from all hosts on 3PAR.
+
+Adds support to configure the size of the native thread pool used by the cinder volume and backup services.  For the backup we use backup_native_threads_pool_size in the [DEFAULT] section, and for the backends we use backend_native_threads_pool_size in the driver section.
+
+Added get capability feature for HPE-3PAR.
+
+Added availability_zone filter for snapshots list.
+
+Added count info in volume, snapshot and backup’s list APIs since 3.45.
+
+Added iSCSI and Fibre Channel volume drivers for DataCore’s SANsymphony and Hyper-converged Virtual SAN storage.
+
+Added policies to disallow multiattach operations.  This includes two policies, the first being a general policy to allow the creation or retyping of multiattach volumes is a volume create policy with the name volume:multiattach.
+The second policy is specifically for disallowing the ability to create multiple attachments on a volume that is marked as bootable, and is an attachment policy with the name volume:multiattach_bootable_volume.
+The default for these new policies is rule:admin_or_owner; be aware that if you wish to disable either of these policies for your users you will need to modify the default policy settings.
+
+Add ability to call failover-host on a replication
+enabled SF cluster a second time with host id = default
+to initiate a failback to the default configured SolidFire
+Cluster.
+
+LUKS Encrypted RBD volumes can now be created by cinder-volume. This
+capability was previously blocked by the rbd volume driver due to the lack
+of any encryptors capable of attaching to an encrypted RBD volume. These
+volumes can also be seeded with RAW image data from Glance through the use
+of QEMU 2.10 and the qemu-img convert command.
+
+Add ability to specify backup driver via class name.
+
+New Cinder volume driver for Inspur InStorage.
+The new driver supports iSCSI.
+
+Cinder now supports the use of ‘max_over_subscription_ratio = auto’ which automatically calculates the value for max_over_subscription_ratio in the scheduler.
+
+Added backend driver for VMware VStorageObject (First Class Disk).
+
+The Quobyte Cinder driver now supports identifying Quobyte mounts
+via the mounts fstype field.
+
+Added support for cloning volume asynchronously, it can be enabled by
+option async_clone set to true in parameter metadata when creating
+volume from volume or snapshot.
+
+Added replication group support in HPE 3PAR cinder driver.
+
+Added support for oversubscription in thin provisioning in the INFINIDAT InfiniBox driver. To use oversubscription, define max_over_subscription_ratio in the cinder configuration file.
+
+Kaminario K2 iSCSI driver now supports non discovery multipathing (Nova and
+Cinder won’t use iSCSI sendtargets) which can be enabled by setting
+disable_discovery to true in the configuration.
+
+When Barbican is the encryption key_manager backend, any encryption keys
+associated with the legacy ConfKeyManager will be automatically migrated
+to Barbican. All database references to the ConfKeyManager’s all-zeros key
+ID will be updated with a Barbican key ID. The encryption keys do not
+change. Only the encryption key ID changes.
+Key migration is initiated on service startup, and entries in the
+cinder-volume log will indicate the migration status. Log entries will
+indicate when a volume’s encryption key ID has been migrated to Barbican,
+and a summary log message will indicate when key migration has finished.
+
+
+Support manage/unmanage volume and manage/unmanage snapshot functions for the NEC volume driver.
+
+Cinder now support policy in code, which means if users don’t need to
+modify any of the default policy rules, they do not need a policy file.
+Users can modify/generate a policy.yaml file which will override specific
+policy rules from their defaults.
+
+Dell EMC PS volume driver reports the total number of volumes on the backend in volume stats.
+
+Add enhanced support to the QNAP Cinder driver, including
+‘CHAP’, ‘Thin Provision’, ‘SSD Cache’, ‘Dedup’ and ‘Compression’.
+
+QNAP Cinder driver added support for QES fw 2.0.0.
+
+Added driver-assisted volume migration to RBD driver. This allows a volume to be efficiently copied by Ceph from one pool to another within the same cluster.
+
+RBD driver supports returning a static total capacity value instead of a
+dynamic value like it’s been doing.  Configurable with
+report_dynamic_total_capacity configuration option.
+
+Allow rbd driver to list manageable volumes.
+
+Re-added QNAP Cinder volume driver.
+
+Added “backend_state: up/down” in response body of service list if
+context is admin. This feature will help operators or cloud management
+system to get the backend device state in every service.
+If device state is down, specify that storage device has got some
+problems. Give more information to locate bugs quickly.
+
+Added revert volume to snapshot in 3par driver.
+
+Add support to backup volume using snapshot in the Unity driver, which enables backing up of volumes that are in-use.
+
+The multiattach capability has been enabled and verified
+as working with the ScaleIO driver. It is the user’s
+responsibility to add some type of exclusion (at the file
+system or network file system layer) to prevent multiple
+writers from corrupting data on the volume.
+
+The SMBFS volume driver can now be configured to use fixed vhd/x images
+through the ‘nas_volume_prov_type’ config option.
+
+The SMBFS driver now supports the volume manage/unmanage feature. Images
+residing on preconfigured shares may be listed and managed by Cinder.
+
+The SMBFS volume driver now supports reverting volumes to the latest
+snapshot.
+
+The StorPool backend driver was added.
+
+Add backup snapshots support for Storwize/SVC driver.
+
+Add consistent replication group support in Storwize Cinder driver.
+
+Disable creating volume with non cg_snapshot group_id in Storwize/SVC driver.
+
+Added hyperswap volume and group support in Storwize cinder driver. Storwize/svc versions prior to 7.6 do not support this feature.
+
+Add reverting to snapshot support in Storwize Cinder driver.
+
+Starting with API microversion 3.47, Cinder now supports the ability to
+create a volume directly from a backup. For instance, you can use the
+command: cinder create <size> --backup-id <backup_id> in cinderclient.
+
+Add support to force detach a volume from all hosts on Unity.
+
+Added support for Keystone middleware feature to pass service token along with
+the user token for Cinder to Nova and Glance services. This will help get rid
+of user token expiration issues during long running tasks e.g. creating volume
+snapshot (Cinder->Nova) and creating volume from image (Cinder->Glance) etc.
+To use this functionality a service user needs to be created first. Add the
+service user configurations in cinder.conf under service_user group
+and set send_service_user_token flag to True.
+
+Add chap authentication support for the vmax backend.
+
+Support for manage/ unmanage snapshots on VMAX cinder driver.
+
+Added asynchronous remote replication support in Dell EMC VMAX cinder driver.
+
+Support for VMAX SRDF/Metro on VMAX cinder driver.
+
+Add consistent replication group support in Dell EMC VMAX cinder driver.
+
+Support for reverting a volume to a previous snapshot in VMAX cinder driver.
+
+Added support for revert-to-snapshot in the VMware VMDK driver.
+
+VMware VMDK driver now supports vSphere template as a
+volume snapshot format in vCenter server. The snapshot
+format in vCenter server can be specified using driver
+config option vmware_snapshot_format.
+
+VMware VMDK driver now supports a config option
+vmware_lazy_create to disable the default behavior of
+lazy creation of raw volumes in the backend.
+
+VMware VMDK driver now supports changing adpater type using retype.
+To change the adapter type, set vmware:adapter_type in the
+new volume type.
+
+The volumes created by VMware VMDK driver will be displayed as
+“managed by OpenStack Cinder” in vCenter server.
+
+Add support to force detach a volume from all hosts on VNX.
+
+Logging path can now be configured for vzstorage driver in
+shares config file (specified by vzstorage_shares_config option).
+To set custom logging path add ‘-l’, ‘<path_to_log_file>’ to
+mount options array. Otherwise default logging path
+/var/log/vstorage/<cluster_name>/cinder.log.gz will be used.
+
+VzStorage volume driver now supports choosing desired volume format by setting
+vendor property ‘vz:volume_format’ in volume type metadata.
+Allowed values are ‘ploop’, ‘qcow2’ and ‘raw’.
+
+Added new option to delete XtremIO initiator groups after the last volume
+was detached from them. Cleanup can be enabled by setting
+xtremio_clean_unused_ig to True under the backend settings in
+cinder.conf.

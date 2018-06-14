@@ -1,0 +1,92 @@
+
+The Neutron server now learns the appropriate firewall wiring behavior from each OVS agent so it no longer needs to be configured with the firewall_driver. This means it also supports multiple agents with different types of firewalls.
+
+Two new options are added to [designate] section to support SSL.
+
+First option insecure allows to skip SSL validation when creating a keystone session to initate a designate client. Default value is False, which means to always verify connection.
+
+Second option ca_cert allows setting path to a valid cert file. Default is None.
+
+The local_ip value in ml2_conf.ini can now be set to an IPv6 address configured on the system.
+
+In Mitaka, the combination of ‘path_mtu’ defaulting to 1500 and ‘advertise_mtu’ defaulting to True provides a value of MTU accounting for any overlay protocol overhead on the network to instances using DHCP. For example, an instance attaching to a VXLAN network receives a 1450 MTU from DHCP accounting for 50 bytes of overhead from the VXLAN overlay protocol if using IPv4 endpoints.
+
+In Mitaka, queries to the Networking API for network objects will now return network objects that contain a sane MTU value.
+
+The LinuxBridge agent can now configure basic bandwidth limiting QoS rules set for ports and networks. It introduces two new config options for LinuxBridge agent. First is ‘kernel_hz’ option which is value of host kernel HZ setting. It is necessary for proper calculation of minimum burst value in tbf qdisc setting. Second is ‘tbf_latency’ which is value of latency to be configured in tc-tbf setting. Details about this option can be found in tc-tbf manual.
+
+External networks can now be controlled using the RBAC framework that was added in Liberty. This allows networks to be made available to specific tenants (as opposed to all tenants) to be used as an external gateway for routers and floating IPs. By default this feature will also allow regular tenants to make their networks available as external networks to other individual tenants (or even themselves), but they are prevented from using the wildcard to share to all tenants. This behavior can be adjusted via policy.json by the operator if desired.
+
+A DHCP agent is assigned to an availability zone; the network will be hosted by the DHCP agent with availability zone specified by the user.
+
+An L3 agent is assigned to an availability zone; the router will be hosted by the L3 agent with availability zone specified by the user. This supports the use of availability zones with HA routers. DVR isn’t supported now because L3HA and DVR integration isn’t finished.
+
+Once Nova takes advantage of this feature, a user can launch an instance without explicitly provisioning network resources.
+
+Floating IPs can have dns_name and dns_domain attributes associated with them
+
+Ports can have a dns_name attribute associated with them. The network where a port is created can have a dns_domain associated with it
+
+Floating IPs and ports will be published in an external DNS service if they have dns_name and dns_domain attributes associated with them.
+
+The reference driver integrates neutron with designate
+
+Drivers for other DNSaaS can be implemented
+
+Driver is configured in the default section of neutron.conf using parameter ‘external_dns_driver’
+
+Ports that failed to bind when an L2 agent was offline can now recover after the agent is back online.
+
+Neutron now supports sharing of QoS policies between a subset of tenants.
+
+Security group rules, networks, ports, routers, floating IPs, and subnet pools may now contain an optional description which allows users to easily store details about entities.
+
+Users can set tags on their network resources.
+
+Networks can be filtered by tags. The supported filters are ‘tags’, ‘tags-any’, ‘not-tags’ and ‘not-tags-any’.
+
+Add timestamp fields ‘created_at’, ‘updated_at’ into neutron core resources like network, subnet, port and subnetpool.
+
+And support for querying these resources by changed-since, it will return the resources changed after the specfic time string like YYYY-MM-DDTHH:MM:SS
+
+By default, the DHCP agent provides a network MTU value to instances using the corresponding DHCP option if core plugin calculates the value. For ML2 plugin, calculation mechanism is enabled by setting [ml2] path_mtu option to a value greater than zero.
+
+Allow non-admin users to define “external” extra-routes.
+
+Announcement of tenant subnets via BGP using centralized Neutron router gateway port as the next-hop
+
+Announcement of floating IP host routes via BGP using the centralized Neutron router gateway port as the next-hop
+
+Announcement of floating IP host routes via BGP using the floating IP agent gateway as the next-hop when the floating IP is associated through a distributed router
+
+Neutron no longer includes static example configuration files. Instead, use tools/generate_config_file_samples.sh to generate them. The files are generated with a .sample extension.
+
+Add derived attributes to the network to tell users which address scopes the network is in.
+
+The subnet API now includes a new use_default_subnetpool attribute.  This attribute can be specified on creating a subnet in lieu of a subnetpool_id.  The two are mutually exclusive.  If it is specified as True, the default subnet pool for the requested ip_version will be looked up and used. If no default exists, an error will be returned.
+
+Neutron now supports creation of ports for exposing physical functions as network devices to guests.
+
+High Availability support for SNAT services on Distributed Virtual Routers.  Routers can now be created with the flags distributed=True and ha=True. The created routers will provide Distributed Virtual Routing as well as SNAT high availability on the l3 agents configured for dvr_snat mode.
+
+Use the value of the network ‘mtu’ attribute for the MTU of virtual network interfaces such as veth pairs, patch ports, and tap devices involving a particular network.
+
+Enable end-to-end support for arbitrary MTUs including jumbo frames between instances and provider networks by moving MTU disparities between flat or VLAN networks and overlay networks from layer-2 devices to layer-3 devices that support path MTU discovery (PMTUD).
+
+The Linuxbridge agent can now be extended by 3rd parties using a pluggable mechanism.
+
+Libvirt qemu/kvm instances can now be attached via MacVtap in bridge mode to a network. VLAN and FLAT attachments are supported. Other attachmentes than compute are not supported.
+
+When advertise_mtu is set in the config, Neutron supports advertising the LinkMTU using Router Advertisements.
+
+A new API endpoint /v2.0/network-ip-availabilities that allows an admin to quickly get counts of used_ips and total_ips for network(s) is available. New endpoint allows filtering by network_id, network_name, tenant_id, and ip_version. Response returns network and nested subnet data that includes used and total IPs.
+
+SriovNicSwitchMechanismDriver driver now exposes a new VIF type ‘hostdev_physical’ for ports with vnic type ‘direct-physical’ (used for SR-IOV PF passthrough). This will enable Nova to provision PFs as Neutron ports.
+
+The RPC and notification queues have been separated into different queues. Specify the transport_url to be used for notifications within the [oslo_messaging_notifications] section of the configuration file. If no transport_url is specified in [oslo_messaging_notifications], the transport_url used for RPC will be used.
+
+Neutron services should respond to SIGUSR2 signal by dumping valuable debug information to standard error output.
+
+New security groups firewall driver is introduced. It’s based on OpenFlow using connection tracking.
+
+Neutron can interact with keystone v3.

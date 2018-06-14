@@ -1,0 +1,52 @@
+
+Activation of this feature enables gateway connectivity validation and rescheduling of the “master” router to another node when connectivity is lost. If all routers lose connectivity to the gateways, the election process will be repeated round-robin until one of the routers restores its gateway connection. In the mean time, all of the routers will be reported as “master”.
+
+A new mechanism has been added to netns_cleanup to kill processes that are listening on any port/unix socket within the namespace. This will try to kill them gracefully via SIGTERM and, if they don’t die, then a SIGKILL will be sent to the remaining processes to ensure a proper cleanup.
+
+Middleware was added to parse the X-Forwarded-Proto HTTP header or the Proxy protocol in order to help neutron respond with the correct URL refs when it’s put behind a TLS proxy (such as HAProxy). This adds http_proxy_to_wsgi middleware to the pipeline. This middleware is disabled by default, but can be enabled via a configuration option in the oslo_middleware group.
+
+Return code for quota delete for a tenant whose
+quota has not been previously defined has been
+changed from 204 to 404.
+
+Two new options are added to [designate] section to support SSL.
+
+First option insecure allows to skip SSL validation when creating a keystone session to initate a designate client. Default value is False, which means to always verify connection.
+
+Second option ca_cert allows setting path to a valid cert file. Default is None.
+
+SR-IOV now supports egress minimum bandwidth configuration.
+
+The port resource now has an ip_allocation attribute. The value of this attribute will be set to ‘immediate’, ‘deferred’, or ‘none’ at the time the port is created. It will not be changed when the port is updated.
+‘immediate’ means that the port is expected to have an IP address and Neutron attempted IP allocation on port creation. ‘deferred’ means that the port is expected to have an IP address but Neutron deferred IP allocation until a port update provides the host to which the port will be bound. ‘none’ means that the port was created explicitly with no addresses by passing [] in fixed_ips when creating it.
+
+Subnets now have a new property ‘service_types’. This is a list of port device owners, such that only ports with a matching device owner will be given an IP from this subnet. If no matching service subnet exists for the given device owner, or no service subnets have been defined on the network, the port will be assigned an IP from a subnet with no service-types. This preserves backwards compatibility with older deployments.
+
+Neutron can apply a QoS rule to ports that mark outgoing traffic’s type of service packet header field.
+
+The Open vSwitch Neutron agent has been extended to mark the Type of Service IP header field of packets egressing from the VM when the QoS rule has been applied.
+
+The Neutron server now learns the appropriate firewall wiring behavior from each OVS agent so it no longer needs to be configured with the firewall_driver. This means it also supports multiple agents with different types of firewalls.
+
+net-mtu extension now recalculates network MTU on each network access, not just on creation. It now allows operators to tweak MTU related configuration options and see them applied to all network resources right after controller restart, both old and new.
+
+The new l2_adjacency extension adds an l2_adjacency field to the network,
+to indicate whether or not there is guaranteed L2 adjacency between the
+ports on that Network.  Routed network implementations would typically set
+l2_adjacency to False.
+
+The neutron L3 agent now has the ability to load agent extensions, which allows other services to integrate without additional agent changes.  An API for exposing the l3 agent’s router info data to the extensions is also provided so that extensions can remain consistent with router state.
+
+Neutron switched to using oslo.cache library to cache port state in metadata agent. With it, more caching backends are now available, including Memcached and Mongo. More details in oslo.cache documentation.
+
+The local_ip value in ml2_conf.ini can now be set to an IPv6 address configured on the system.
+
+DHCP schedulers use “filter_host_with_network_access” plugin method to filter hosts with access to dhcp network. Plugins can overload it to define their own filtering logic. In particular, ML2 plugin delegates the filtering to mechanism drivers.
+
+The Networking API now supports the ‘project_id’ field in requests and responses, for compatibility with the Identity (Keystone) API V3. A new API extension, ‘project-id’, has been added to allow API users to detect if the ‘project_id’ field is supported. Note that the ‘tenant_id’ field is still supported, and the two fields are functionally equivalent.
+
+Users can now apply a QoS rule to a port or network to setup the minimum egress bandwidth per queue and port. The minimum egress bandwidth rule is applied to each port individually.
+
+New API extensions, ‘sorting’ and ‘pagination’, have been added to allow API users to detect if sorting and pagination features are enabled. These features are controlled by allow_sorting and allow_pagination configuration options.
+
+The feature “vlan-aware-vms” is available. To enable it, a service plugin named ‘trunk’ must be added to the option service_plugins in your neutron.conf. The plugin exposes two new extensions trunk and trunk_details. The plugin can work with multiple backends and in particular Neutron has support for ML2/openvswitch and ML2/linuxbridge. Even though Neutron API compatibility should be preserved for ports associated to trunks, since this is the first release where the feature is available, it is reasonable to expect possible functionality gaps for one or both drivers. These will be filled over time as being reported. The CLI is available via openstackclient, and python-neutronclient 5.1.0 or above. For more details, please check the networking guide.

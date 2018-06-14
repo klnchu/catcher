@@ -1,0 +1,313 @@
+
+Updates the network metadata that is passed to configdrive by the Ironic
+virt driver. The metadata now includes network information about port
+groups and their associated ports. It will be used to configure port
+groups on the baremetal instance side.
+
+Adding aarch64 to the list of supported architectures for NUMA and hugepage features. This requires libvirt>=1.2.7 for NUMA, libvirt>=1.2.8 for hugepage and qemu v2.1.0 for both.
+
+OSProfiler support was added. This cross-project profiling library allows to trace various OpenStack requests through all OpenStack services that support it. To initiate OpenStack request tracing –profile <HMAC_KEY> option needs to be added to the CLI command. This key needs to present one of the secret keys defined in nova.conf configuration file with hmac_keys option under the [profiler] configuration section. To enable or disable Nova profiling the appropriate enabled option under the same section needs to be set either to True or False. By default Nova will trace all API and RPC requests, but there is an opportunity to trace DB requests as well. For this purpose trace_sqlalchemy option needs to be set to True. As a prerequisite OSProfiler library and its storage backend needs to be installed to the environment. If so (and if profiling is enabled in nova.conf) the trace can be generated via following command, for instance - $ nova –profile SECRET_KEY boot –image <image> –flavor <flavor> <name>. At the end of output there will be message with <trace_id>, and to plot nice HTML graphs the following command should be used - $ osprofiler trace show <trace_id> –html –out result.html
+
+The following versioned swap volume notifications have been added
+in the compute manager:
+instance.volume_swap.start
+instance.volume_swap.end
+instance.volume_swap.error
+
+
+
+instance.volume_swap.start
+instance.volume_swap.end
+instance.volume_swap.error
+
+Support for archiving all deleted rows from the database has
+been added to the nova-manage db archive_deleted_rows
+command. The --until-complete option will continuously
+run the process until no more rows are available for archiving.
+
+Virtuozzo hypervisor now supports ephemeral disks for containers.
+
+Support versioned notifications for flavor operations like create, delete, update access and update extra_specs.
+
+The Hyper-V driver now supports the following quota flavor extra
+specs, allowing to specify IO limits applied for each of the
+instance local disks, individually.
+
+quota:disk_total_bytes_sec
+quota:disk_total_iops_sec - those are normalized IOPS, thus each
+IO request is accounted for as 1 normalized IO if the size of the
+request is less than or equal to a predefined base size (8KB).
+
+Also, the following Cinder front-end QoS specs are now supported
+for SMB Cinder backends:
+
+total_bytes_sec
+total_iops_sec - normalized IOPS
+
+
+
+quota:disk_total_bytes_sec
+quota:disk_total_iops_sec - those are normalized IOPS, thus each
+IO request is accounted for as 1 normalized IO if the size of the
+request is less than or equal to a predefined base size (8KB).
+
+total_bytes_sec
+total_iops_sec - normalized IOPS
+
+The Hyper-V driver now uses os-brick for volume related
+operations, introducing the following new features:
+Attaching volumes over fibre channel on a passthrough
+basis.
+Improved iSCSI MPIO support, by connecting to multiple
+iSCSI targets/portals when available and allowing using
+a predefined list of initiator HBAs.
+
+
+
+Attaching volumes over fibre channel on a passthrough
+basis.
+Improved iSCSI MPIO support, by connecting to multiple
+iSCSI targets/portals when available and allowing using
+a predefined list of initiator HBAs.
+
+Adds trigger crash dump support to ironic virt driver. This feature requires the Ironic service to support API version 1.29 or later. It also requires python-ironicclient >= 1.11.0.
+
+Adds soft reboot support to Ironic virt driver. If hardware driver in Ironic doesn’t support soft reboot, hard reboot is tried. This feature requires the Ironic service to support API version 1.27 or later. It also requires python-ironicclient >= 1.10.0.
+
+Adds soft power off support to Ironic virt driver. This feature requires the Ironic service to support API version 1.27 or later. It also requires python-ironicclient >= 1.10.0.
+
+Virtuozzo hypervisor now supports libvirt callback to set admin password. Requires libvirt>=2.0.0.
+
+The XenServer compute driver now supports hot-plugging virtual network interfaces.
+
+The same policy rule (os_compute_api:os-server-groups)
+was being used for all actions (show, index, delete, create)
+for server_groups REST APIs. It was thus impossible to provide
+different RBAC for specific actions based on roles. To address
+this changes were made to have separate policy rules for each
+action. The original rule (os_compute_api:os-server-groups) is
+left unchanged for backward compatibility.
+
+The libvirt driver now has a live_migration_scheme configuration
+option which should be used where the live_migration_uri would
+previously have been configured with non-default scheme.
+
+The nova Hyper-V driver can now plug OVS VIFs. This means that neutron-ovs-agent can be used as an L2 agent instead of neutron-hyperv-agent. In order to plug OVS VIFs, the configuration option “vswitch_name” from the “hyperv” section must be set to the vSwitch which has the OVS extension enabled. Hot-plugging is only supported on Windows / Hyper-V Server 2016 + Generation 2 VMs. Older Hyper-V versions only support attaching vNICs while the VM is turned off.
+
+The nova Hyper-V driver now supports adding PCI passthrough devices to
+Hyper-V instances (discrete device assignment). This feature has been
+introduced in Windows / Hyper-V Server 2016 and offers the possibility to
+attach some of the host’s PCI devices (e.g.: GPU devices) directly to
+Hyper-V instances.
+In order to benefit from this feature, Hyper-V compute nodes must support
+SR-IOV and must have assignable PCI devices. This can easily be checked by
+running the following powershell commands:
+Start-BitsTransfer https://raw.githubusercontent.com/Microsoft/Virtualization-Documentation/master/hyperv-samples/benarm-powershell/DDA/survey-dda.ps1
+.\survey-dda.ps1
+
+
+The script above will print a list of assignable PCI devices available on
+the host, and if the host supports SR-IOV.
+If the host supports this feature and it has at least an assignable PCI
+device, the host must be configured to allow those PCI devices to be
+assigned to VMs. For information on how to do this, follow this guide [1].
+After the compute nodes have been configured, the nova-api, nova-scheduler,
+and the nova-compute services will have to be configured next [2].
+[1] https://blogs.technet.microsoft.com/heyscriptingguy/2016/07/14/passing-through-devices-to-hyper-v-vms-by-using-discrete-device-assignment/
+[2] http://docs.openstack.org/admin-guide/compute-pci-passthrough.html
+
+
+Added boot order support in the Hyper-V driver.
+The HyperVDriver can now set the requested boot order for instances that are
+Generation 2 VMs (the given image has the property “hw_machine_type=hyperv-gen2”).
+For Generation 1 VMs, the spawned VM’s boot order is changed only if the given
+image is an ISO, booting from ISO first.
+
+The nova Hyper-V driver now supports symmetric NUMA topologies. This means that all the NUMA nodes in the NUMA topology must have the same amount of vCPUs and memory. It can easily be requested by having the flavor extra_spec “hw:numa_nodes”, or the image property “hw_numa_nodes”. An instance with NUMA topology cannot have dynamic memory enabled. Thus, if an instance requires a NUMA topology, it will be spawned without dynamic memory, regardless of the value set in the “dynamic_memory_ratio” config option in the compute node’s “nova.conf” file. In order to benefit from this feature, the host’s NUMA spanning must be disabled. Hyper-V does not guarantee CPU pinning, thus, the nova Hyper-V driver will not spawn instances with the flavor extra_spec “hw:cpu_policy” or image property “hw_cpu_policy” set to “dedicated”.
+
+Added support for Hyper-V VMs with UEFI Secure Boot enabled.
+In order to create such VMs, there are a couple of things to consider:
+Images should be prepared for Generation 2 VMs. The image property
+“hw_machine_type=hyperv-gen2” is mandatory.
+The guest OS type must be specified in order to properly spawn the VMs.
+It can be specifed through the image property “os_type”, and the
+acceptable values are “windows” or “linux”.
+The UEFI Secure Boot feature can be requested through the image property
+“os_secure_boot” (acceptable values: “disabled”, “optional”, “required”)
+or flavor extra spec “os:secure_boot” (acceptable values: “disabled”,
+“required”). The flavor extra spec will take precedence. If the image
+property and the flavor extra spec values are conflicting, then an
+exception is raised.
+This feature is supported on Windows / Hyper-V Server 2012 R2 for
+Windows guests, and Windows / Hyper-V Server 2016 for both
+Windows and Linux guests.
+
+
+
+Images should be prepared for Generation 2 VMs. The image property
+“hw_machine_type=hyperv-gen2” is mandatory.
+The guest OS type must be specified in order to properly spawn the VMs.
+It can be specifed through the image property “os_type”, and the
+acceptable values are “windows” or “linux”.
+The UEFI Secure Boot feature can be requested through the image property
+“os_secure_boot” (acceptable values: “disabled”, “optional”, “required”)
+or flavor extra spec “os:secure_boot” (acceptable values: “disabled”,
+“required”). The flavor extra spec will take precedence. If the image
+property and the flavor extra spec values are conflicting, then an
+exception is raised.
+This feature is supported on Windows / Hyper-V Server 2012 R2 for
+Windows guests, and Windows / Hyper-V Server 2016 for both
+Windows and Linux guests.
+
+Encryption provider constants have been introduced detailing the supported
+encryption formats such as LUKs along with their associated in-tree
+provider implementations. These constants should now be used to identify an
+encryption provider implementation for a given encryption format.
+
+Adds serial console support to Ironic driver. Nova now supports serial console to Ironic bare metals for Ironic socat console driver. In order to use this feature, serial console must be configured in Nova and the Ironic socat console driver must be used and configured in Ironic. Ironic serial console configuration is documented in http://docs.openstack.org/developer/ironic/deploy/console.html.
+
+Live migration is supported for both Virtuozzo containers and virtual machines when using virt_type=parallels.
+
+The following legacy notifications have been transformed to
+a new versioned payload:
+
+aggregate.create
+aggregate.delete
+instance.create
+instance.finish_resize
+instance.power_off
+instance.resume
+instance.shelve_offload
+instance.shutdown
+instance.snapshot
+instance.unpause
+instance.unshelve
+
+Every versioned notification has a sample file stored under
+doc/notification_samples directory. Consult
+http://docs.openstack.org/developer/nova/notifications.html for more information.
+
+
+aggregate.create
+aggregate.delete
+instance.create
+instance.finish_resize
+instance.power_off
+instance.resume
+instance.shelve_offload
+instance.shutdown
+instance.snapshot
+instance.unpause
+instance.unshelve
+
+A new nova-status upgrade check CLI is provided for checking the
+readiness of a deployment when preparing to upgrade to the latest release.
+The tool is written to handle both fresh installs and upgrades from an
+earlier release, for example upgrading from the 14.0.3 Newton release.
+There can be multiple checks performed with varying degrees of success.
+More details on the command and how to interpret results are in the
+nova-status man page.
+
+All deployments will function as a single-cell
+environment. Multiple v2 cells are technically possible, but should
+only be used for testing as many other things will not work across
+cell boundaries yet. For details on cells v2 and the setup required for
+Nova with cells v2, see the cells documentation. [1]
+
+
+
+[1]http://docs.openstack.org/developer/nova/cells.html
+
+
+
+
+
+Added microversion v2.40 which introduces pagination support for usage
+with the help of new optional parameters ‘limit’ and ‘marker’. If ‘limit’
+isn’t provided, it will default to the configurable max limit which is
+currently 1000.
+/os-simple-tenant-usage?limit={limit}&marker={instance_uuid}
+/os-simple-tenant-usage/{tenant}?limit={limit}&marker={instance_uuid}
+
+
+Older microversions will not accept these new paging query parameters,
+but they will start to silently limit by the max limit to encourage the
+adoption of this new microversion, and circumvent the existing possibility
+DoS-like usage requests on systems with thousands of instances.
+
+
+Enhance pci.passthrough_whitelist to support regular expression syntax. The ‘address’ field can be regular expression syntax. The old pci.passthrough_whitelist, glob sytnax, is still valid config.
+
+A new Placement API microversion 1.3 is added with support for filtering
+the list of resource providers to include only those resource providers
+which are members of any of the aggregates listed by uuid in the member_of
+query parameter. The parameter is used when making a
+GET /resource_providers request. The value of the parameter uses the
+in: syntax to provide a list of aggregate uuids as follows:
+/resource_providers?member_of=in:09c931b0-c0d7-4e80-8e01-9e6511db8259,f8ab4fa2-804f-402e-b675-7918bd04b173
+
+
+If other filtering query parameters are present, the results are a boolean
+AND of all the filters.
+
+
+A new Placement API microversion 1.4 is added. Users may now query the
+Placement REST API for resource providers that have the ability to meet a
+set of requested resource amounts. The GET /resource_providers API call
+can have a “resources” query string parameter supplied that indicates the
+requested amounts of various resources that a provider must have the
+capacity to serve. The “resources” query string parameter takes the form:
+?resources=$RESOURCE_CLASS_NAME:$AMOUNT,$RESOURCE_CLASS_NAME:$AMOUNT
+For instance, if the user wishes to see resource providers that can service
+a request for 2 vCPUs, 1024 MB of RAM and 50 GB of disk space, the user can
+issue a request of:
+``GET /resource_providers?resources=VCPU:2,MEMORY_MB:1024,DISK_GB:50``
+
+
+The placement API is only available to admin users.
+
+
+A new administrator-only resource endpoint was added to the OpenStack
+Placement REST API for managing custom resource classes. Custom resource
+classes are specific to a deployment and represent types of quantitative
+resources that are not interoperable between OpenStack clouds. See the
+Placement REST API Version History documentation for usage details.
+
+nova-scheduler process is now calling the placement API in order to get a list of valid destinations before calling the filters. That works only if all your compute nodes are fully upgraded to Ocata. If some nodes are not upgraded, the scheduler will still lookup from the DB instead which is less performant.
+
+A new 2.41 microversion was added to the Compute API. Users specifying this microversion will now see the ‘uuid’ attribute of aggregates when calling the os-aggregates REST API endpoint.
+
+As new hosts are added to Nova, the nova-manage cell_v2 discover_hosts command must be run in order to map them into their cell. For deployments with proper automation, this is a trivial extra step in that process. However, for smaller or non-automated deployments, there is a new configuration variable for the scheduler process which will perform this discovery periodically. By setting scheduler.discover_hosts_in_cells_interval to a positive value, the scheduler will handle this for you. Note that this process involves listing all hosts in all cells, and is likely to be too heavyweight for large deployments to run all the time.
+
+VLAN tags associated with instance network interfaces are now exposed via
+the metadata API and instance config drives and can be consumed by the
+instance. This is an extension of the device tagging mechanism added in
+past releases. This is useful for instances utilizing SR-IOV physical
+functions (PFs). The VLAN configuration for the guest’s virtual interfaces
+associated with these devices cannot be configured inside the guest OS from
+the host, but nonetheless must be configured with the VLAN tags of the
+device to ensure packet delivery. This feature makes this possible.
+
+Note
+VLAN tags are currently only supported via the Libvirt driver.
+
+
+
+Added support for Keystone middleware feature where if service token is sent along with the user token, then it will ignore the expiration of user token. This helps deal with issues of user tokens expiring during long running operations, such as live-migration where nova tries to access Cinder and Neutron at the end of the operation using the user token that has expired. In order to use this functionality a service user needs to be created. Add service user configurations in nova.conf under service_user group and set send_service_user_token flag to True. The minimum Keytone API version 3.8 and Keystone middleware version 4.12.0 is required to use this functionality. This only currently works with Nova - Cinder and Nova - Neutron API interactions.
+
+The vendordata metadata system now caches boot time roles.  Some external
+vendordata services want to provide metadata based on the role of the user
+who started the instance. It would be confusing if the metadata returned
+changed later if the role of the user changed, so we cache the boot time
+roles and then pass those to the external vendordata service.
+
+The vendordata metadata system now supports a hard failure mode. This can
+be enabled using the api.vendordata_dynamic_failure_fatal configuration
+option.  When enabled, an instance will fail to start if the instance
+cannot fetch dynamic vendordata.
+
+The nova-manage online_data_migrations command now prints a tabular summary of completed and remaining records. The goal here is to get all your numbers to zero. The previous execution return code behavior is retained for scripting.
+
+When using libvirt driver, vrouter VIFs (OpenContrail) now supports multiqueue mode, which allows to scale network performance across number of vCPUs. To use this feature one needs to create instance with more than 1 vCPU from an image with hw_vif_multiqueue_enabled property set to true.
+
+A list of valid vif models is extended for Virtuozzo hypervisor (virt_type=parallels) with VIRTIO, RTL8139 and E1000 models.

@@ -1,0 +1,95 @@
+
+L2 agents based on ML2 _common_agent have now the L2 extension API
+available. This API can be used by L2 extension drivers to request
+resources from the L2 agent.
+It is used, for example, to pass an instance of the IptablesManager
+to the Linuxbridge L2 agent QoS extension driver.
+
+The openvswitch L2 agent now supports bi-directional bandwidth limiting.
+
+The QoS service plugin now supports new attribute in qos_bandwidth_limit_rule. This new parameter is called direction and allows to specify direction of traffic for which the limit should be applied.
+
+Ports have now a dns_domain attribute. A port’s dns_domain attribute has precedence over the network’s dns_domain from the point of view of publishing it to the external DNS service.
+
+Allow to configure router service plugin without dvr API extension
+loaded and exposed. To achieve that, set the new enable_dvr option to
+False in neutron.conf file.
+
+The new net-mtu-writable extension API definition has been added. The
+new extension indicates that the network mtu attribute is writeable.
+Plugins supporting the new extension are expected to also support
+net-mtu. The first plugin that gets support for the new extension is
+ml2.
+
+Add data_plane_status attribute to port resources to represent the status of the underlying data plane. This attribute is to be managed by entities outside of the Networking service, while the status attribute is managed by the Networking service. Both status attributes are independent from one another. Third parties can report via Neutron API issues in the underlying data plane affecting connectivity from/to Neutron ports. Attribute can take values None (default), ACTIVE or DOWN, and is readable by users and writable by admins and users granted the data-plane-integrator role. Append data_plane_status to [ml2] extension_drivers config option to load the extension driver.
+
+The resource tag mechanism is refactored so that the tag support for new resources can be supported easily. The resources with tag support are network, subnet, port, subnetpool, trunk, floatingip, policy, security_group, and router.
+
+Neutron API can now be managed by a mod_wsgi compatible web server (e.g. apache2 (httpd), nginx, etc.)
+
+Add ‘default’ behaviour to QoS policies Neutron now supports having a default QoS policy in a project, assigned automatically to all new networks created.
+
+Some scenario tests require advanced Glance images (for example,
+Ubuntu or CentOS) in order to pass. They are now skipped by
+default. If you need to execute those tests, please configure
+tempest.conf to use an advanced image, and set image_is_advanced in
+neutron_plugin_options section of tempest.conf file to True.
+The first scenario test case that requires the new option set to execute is
+test_trunk.
+
+The Neutron API now supports conditional updates to resources with the
+‘revision_number’ attribute by setting the desired revision number in
+an HTTP If-Match header. This allows clients to ensure that a resource
+hasn’t been modified since it was retrieved by the client. Support for
+conditional updates on the server can be checked for by looking for the
+‘revision-if-match’ extension in the supported extensions.
+
+A new DVR agent type dvr_no_external has been introduced with this
+release. This agent type allows the Floating IPs (DNAT/North-South routing)
+to be centralized while the East/West routing is still distributed.
+
+Proactively create DVR floating IP namespace on all compute nodes when a gateway is configured.
+
+Floating IPs associated with an unbound port with DVR routers will
+not be distributed, but will be centralized and implemented in the
+SNAT namespace of the Network node or dvr_snat node.
+Floating IPs associated with allowed_address_pair port IP and are
+bound to multiple active VMs with DVR routers will be implemented
+in the SNAT namespace in the Network node or dvr_snat node. This
+will address VRRP use cases.
+More information about this is captured in
+bug 1583694.
+
+Resource tag mechanism now supports subnet, port, subnetpool and router resources.
+
+Implements a new extension, quota_details which extends existing quota API
+to show detailed information for a specified tenant. The new API shows
+details such as limits, used, reserved.
+
+Linuxbridge L2 agent supports ingress bandwidth limit. The linuxbridge L2 agent now supports bi-directional bandwidth limiting.
+
+UDP ports used by VXLAN in the LinuxBridge agent can be configured now with the VXLAN.udp_srcport_min, VXLAN.udp_srcport_max and VXLAN.udp_dstport config options. To use the IANA assigned port number, set VXLAN.udp_dstport to 4789. The default is not changed from the Linux kernel default 8472.
+
+The metering agent driver can now be specified with a stevedore alias in the metering_agent.ini file. For example, driver = iptables instead of driver = neutron.services.metering.iptables.iptables_driver:IptablesMeteringDriver.
+
+A new network_link_prefix configuration option is introduced that allows to
+alter the domain returned in the URLs included in the API responses. It behaves the
+same way as the compute_link_prefix and glance_link_prefix
+options do for Nova and Glance.
+
+The openvswitch mechanism driver now supports hardware offload via SR-IOV. It allows binding direct (SR-IOV) ports. Using openvswitch 2.8.0 and ‘Linux Kernel’ 4.8 allows to control the SR-IOV VF via OpenFlow control plane and gain accelerated ‘Open vSwitch’.
+
+Network QoS policies are now supported for network:router_gateway ports.
+Neutron QoS policies set on an external network now apply to external
+router ports (DVR or not).
+
+New API to get details of supported rule types.
+The QoS service plugin can now expose details about supported QoS rule
+types in Neutron deployment.
+The new API call is allowed only for users with admin priviliges.
+
+In order to reduce metadata proxy memory footprint, haproxy is now used as a replacement for neutron-ns-metadata-proxy Python implementation.
+
+Subport segmentation details can now accept inherit as segmentation type during a trunk creation/update request.  The trunk plugin will determine the segmentation type and ID and replace them with those of the network to which the port is connected.  Only single-segment VLAN networks are set to have expected and correct results at this point.
+
+Enable creation of VXLANs with different multicast addresses in linuxbridge agent allocated by VNI-address mappings. A new config option multicast_ranges was introduced.

@@ -1,0 +1,179 @@
+
+Enables NUMA topology reporting on PowerPC architecture
+from the libvirt driver in Nova but with a caveat as mentioned below.
+NUMA cell affinity and dedicated cpu pinning
+code assumes that the host operating system is exposed to threads.
+PowerPC based hosts use core based scheduling for processes.
+Due to this, the cores on the PowerPC architecture are treated as
+threads. Since cores are always less than or equal
+to the threads on a system, this leads to non-optimal resource usage
+while pinning. This feature is supported from libvirt version 1.2.19
+for PowerPC.
+
+A new REST API to cancel an ongoing live migration has been added in microversion 2.24. Initially this operation will only work with the libvirt virt driver.
+
+It is possible to call attach and detach volume API operations for instances which are in shelved and shelved_offloaded state. For an instance in shelved_offloaded state Nova will set to None the value for the device_name field, the right value for that field will be set once the instance will be unshelved as it will be managed by a specific compute manager.
+
+It is possible to block live migrate instances with additional cinder volumes attached. This requires libvirt version to be >=1.2.17 and does not work when live_migration_tunnelled is set to True.
+
+Project-id and user-id are now also returned in
+the return data of os-server-groups APIs. In order
+to use this new feature, user have to contain the
+header of request microversion v2.13 in the API
+request.
+
+Add support for enabling uefi boot with libvirt.
+
+A new host_status attribute for servers/detail and servers/{server_id}.
+In order to use this new feature, user have to contain the header of
+request microversion v2.16 in the API request. A new policy
+os_compute_api:servers:show:host_status added to enable the feature.
+By default, this is only exposed to cloud administrators.
+
+A new server action trigger_crash_dump has been added to the REST API in microversion 2.17.
+
+When RBD is used for ephemeral disks and image storage, make snapshot use Ceph directly, and update Glance with the new location. In case of failure, it will gracefully fallback to the “generic” snapshot method.  This requires changing the typical permissions for the Nova Ceph user (if using authx) to allow writing to the pool where vm images are stored, and it also requires configuring Glance to provide a v2 endpoint with direct_url support enabled (there are security implications to doing this). See http://docs.ceph.com/docs/master/rbd/rbd-openstack/ for more information on configuring OpenStack with RBD.
+
+A new option “live_migration_inbound_addr” has been added
+in the configuration file, set None as default value.
+If this option is present in pre_migration_data, the ip
+address/hostname provided will be used instead of
+the migration target compute node’s hostname as the
+uri for live migration, if it’s None, then the
+mechanism remains as it is before.
+
+Added support for CPU thread policies, which can be used to control how the libvirt virt driver places guests with respect to CPU SMT “threads”. These are provided as instance and image metadata options, ‘hw:cpu_thread_policy’ and ‘hw_cpu_thread_policy’ respectively, and provide an additional level of control over CPU pinning policy, when compared to the existing CPU policy feature. These changes were introduced in commits ‘83cd67c’ and ‘aaaba4a’.
+
+Add support for enabling discard support for block devices with libvirt. This will be enabled for Cinder volume attachments that specify support for the feature in their connection properties. This requires support to be present in the version of libvirt (v1.0.6+) and qemu (v1.6.0+) used along with the configured virtual drivers for the instance. The virtio-blk driver does not support this functionality.
+
+A new auto value for the configuration option
+upgrade_levels.compute is accepted, that allows automatic determination
+of the compute service version to use for RPC communication. By default, we
+still use the newest version if not set in the config, a specific version
+if asked, and only do this automatic behavior if ‘auto’ is
+configured. When ‘auto’ is used, sending a SIGHUP to the service
+will cause the value to be re-calculated. Thus, after an upgrade
+is complete, sending SIGHUP to all services will cause them to
+start sending messages compliant with the newer RPC version.
+
+Libvirt driver in Nova now supports Cinder DISCO volume driver.
+
+A disk space scheduling filter is now available, which prefers compute nodes with the most available disk space.  By default, free disk space is given equal importance to available RAM.  To increase the priority of free disk space in scheduling, increase the disk_weight_multiplier option.
+
+A new REST API to force live migration to complete has been added in microversion 2.22.
+
+The os-instance-actions methods now read actions from deleted instances. This means that ‘GET /v2.1/{tenant-id}/servers/{server-id}/os-instance-actions’ and ‘GET /v2.1/{tenant-id}/servers/{server-id}/os-instance-actions/{req-id}’ will return instance-action items even if the instance corresponding to ‘{server-id}’ has been deleted.
+
+When booting an instance, its sanitized ‘hostname’ attribute is now used to populate the ‘dns_name’ attribute of the Neutron ports the instance is attached to. This functionality enables the Neutron internal DNS service to know the ports by the instance’s hostname. As a consequence, commands like ‘hostname -f’ will work as expected when executed in the instance. When a port’s network has a non-blank ‘dns_domain’ attribute, the port’s ‘dns_name’ combined with the network’s ‘dns_domain’ will be published by Neutron in an external DNS as a service like Designate. As a consequence, the instance’s hostname is published in the external DNS as a service. This functionality is added to Nova when the ‘DNS Integration’ extension is enabled in Neutron. The publication of ‘dns_name’ and ‘dns_domain’ combinations to an external DNS as a service additionaly requires the configuration of the appropriate driver in Neutron. When the ‘Port Binding’ extension is also enabled in Neutron, the publication of a ‘dns_name’ and ‘dns_domain’ combination to the external DNS as a service will require one additional update operation when Nova allocates the port during the instance boot. This may have a noticeable impact on the performance of the boot process.
+
+The libvirt driver now has a live_migration_tunnelled configuration option which should be used where the VIR_MIGRATE_TUNNELLED flag would previously have been set or unset in the live_migration_flag and block_migration_flag configuration options.
+
+For the libvirt driver, by default hardware properties will be retrieved from the Glance image and if such haven’t been provided, it will use a libosinfo database to get those values. If users want to force a specific guest OS ID for the image, they can now use a new glance image property os_distro (eg. --property os_distro=fedora21). In order to use the libosinfo database, you need to separately install the related native package provided for your operating system distribution.
+
+Add support for allowing Neutron to specify the bridge name for the OVS, Linux Bridge, and vhost-user VIF types.
+
+Added a nova-manage db online_data_migrations command for forcing online data migrations, which will run all registered migrations for the release, instead of there being a separate command for each logical data migration. Operators need to make sure all data is migrated before upgrading to the next release, and the new command provides a unified interface for doing it.
+
+Provides API 2.18, which makes the use of project_ids in API urls optional.
+
+Libvirt with Virtuozzo virtualisation type now supports snapshot operations
+
+Remove onSharedStorage parameter from server’s evacuate action in microversion 2.14. Nova will automatically detect if the instance is on shared storage. Also adminPass is removed from the response body which makes the response body empty. The user can get the password with the server’s os-server-password action.
+
+Add two new list/show API for server-migration.
+The list API will return the in progress live migratons
+information of a server. The show API will return
+a specified in progress live migration of a server.
+This has been added in microversion 2.23.
+
+A new service.status versioned notification has been introduced. When the status of the Service object is changed nova will send a new service.update notification with versioned payload according to bp versioned-notification-api. The new notification is documented in http://docs.openstack.org/developer/nova/notifications.html
+
+Two new policies soft-affinty and soft-anti-affinity have been implemented for the server-group feature of Nova. This means that POST  /v2.1/{tenant_id}/os-server-groups API resource now accepts ‘soft-affinity’ and ‘soft-anti-affinity’ as value of the ‘policies’ key of the request body.
+
+In Nova Compute API microversion 2.19, you can specify a “description” attribute when creating, rebuilding, or updating a server instance.  This description can be retrieved by getting server details, or list details for servers.
+Refer to the Nova Compute API documentation for more information.
+Note that the description attribute existed in prior Nova versions, but was set to the server name by Nova, and was not visible to the user.  So, servers you created with microversions prior to 2.19 will return the description equals the name on server details microversion 2.19.
+
+As part of refactoring the notification interface of Nova a new config option ‘notification_format’ has been added to specifies which notification format shall be used by nova. The possible values are ‘unversioned’ (e.g. legacy), ‘versioned’, ‘both’. The default value is ‘both’. The new versioned notifications are documented in http://docs.openstack.org/developer/nova/notifications.html
+
+For the VMware driver, the flavor extra specs for quotas has been extended
+to support:
+quota:cpu_limit - The cpu of a virtual machine will not
+exceed this limit, even if there are available resources. This is
+typically used to ensure a consistent performance of virtual machines
+independent of available resources. Units are MHz.
+quota:cpu_reservation - guaranteed minimum reservation (MHz)
+quota:cpu_shares_level - the allocation level. This can be
+‘custom’, ‘high’, ‘normal’ or ‘low’.
+quota:cpu_shares_share - in the event that ‘custom’ is used,
+this is the number of shares.
+quota:memory_limit - The memory utilization of a virtual
+machine will not exceed this limit, even if there are available
+resources. This is typically used to ensure a consistent performance of
+virtual machines independent of available resources. Units are MB.
+quota:memory_reservation - guaranteed minimum reservation (MB)
+quota:memory_shares_level - the allocation level. This can be
+‘custom’, ‘high’, ‘normal’ or ‘low’.
+quota:memory_shares_share - in the event that ‘custom’ is used,
+this is the number of shares.
+quota:disk_io_limit - The I/O utilization of a virtual machine
+will not exceed this limit. The unit is number of I/O per second.
+quota:disk_io_reservation - Reservation control is used to
+provide guaranteed allocation in terms of IOPS
+quota:disk_io_shares_level - the allocation level. This can be
+‘custom’, ‘high’, ‘normal’ or ‘low’.
+quota:disk_io_shares_share - in the event that ‘custom’ is used,
+this is the number of shares.
+quota:vif_limit - The bandwidth limit for the virtual network
+adapter. The utilization of the virtual network adapter will not exceed
+this limit, even if there are available resources. Units in Mbits/sec.
+quota:vif_reservation - Amount of network bandwidth that is
+guaranteed to the virtual network adapter. If utilization is less than
+reservation, the resource can be used by other virtual network adapters.
+Reservation is not allowed to exceed the value of limit if limit is set.
+Units in Mbits/sec.
+quota:vif_shares_level - the allocation level. This can be
+‘custom’, ‘high’, ‘normal’ or ‘low’.
+quota:vif_shares_share - in the event that ‘custom’ is used,
+this is the number of shares.
+
+
+
+quota:cpu_limit - The cpu of a virtual machine will not
+exceed this limit, even if there are available resources. This is
+typically used to ensure a consistent performance of virtual machines
+independent of available resources. Units are MHz.
+quota:cpu_reservation - guaranteed minimum reservation (MHz)
+quota:cpu_shares_level - the allocation level. This can be
+‘custom’, ‘high’, ‘normal’ or ‘low’.
+quota:cpu_shares_share - in the event that ‘custom’ is used,
+this is the number of shares.
+quota:memory_limit - The memory utilization of a virtual
+machine will not exceed this limit, even if there are available
+resources. This is typically used to ensure a consistent performance of
+virtual machines independent of available resources. Units are MB.
+quota:memory_reservation - guaranteed minimum reservation (MB)
+quota:memory_shares_level - the allocation level. This can be
+‘custom’, ‘high’, ‘normal’ or ‘low’.
+quota:memory_shares_share - in the event that ‘custom’ is used,
+this is the number of shares.
+quota:disk_io_limit - The I/O utilization of a virtual machine
+will not exceed this limit. The unit is number of I/O per second.
+quota:disk_io_reservation - Reservation control is used to
+provide guaranteed allocation in terms of IOPS
+quota:disk_io_shares_level - the allocation level. This can be
+‘custom’, ‘high’, ‘normal’ or ‘low’.
+quota:disk_io_shares_share - in the event that ‘custom’ is used,
+this is the number of shares.
+quota:vif_limit - The bandwidth limit for the virtual network
+adapter. The utilization of the virtual network adapter will not exceed
+this limit, even if there are available resources. Units in Mbits/sec.
+quota:vif_reservation - Amount of network bandwidth that is
+guaranteed to the virtual network adapter. If utilization is less than
+reservation, the resource can be used by other virtual network adapters.
+Reservation is not allowed to exceed the value of limit if limit is set.
+Units in Mbits/sec.
+quota:vif_shares_level - the allocation level. This can be
+‘custom’, ‘high’, ‘normal’ or ‘low’.
+quota:vif_shares_share - in the event that ‘custom’ is used,
+this is the number of shares.

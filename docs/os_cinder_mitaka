@@ -1,0 +1,132 @@
+
+Report pools in volume stats for Block Device Driver.
+
+Support Force backup of in-use cinder volumes for Nimble Storage.
+
+Added support for vhd disk-format for volume upload-to-image.
+
+Support for use of ‘fc_southbound_protocol’ configuration setting in the Brocade FC SAN lookup service.
+
+Added support for creating a consistency group from a source consistency group in the HPE 3PAR driver.
+
+Disable standard capabilities based on 3PAR licenses.
+
+Added snapshot manage/unmanage support to the HPE 3PAR driver.
+
+Added replication v2.1 support to the Dell Storage Center drivers.
+
+Added v2.1 replication support in Huawei Cinder driver.
+
+Added support for creating, deleting, and updating consistency groups for NetApp 7mode and CDOT backends.
+
+Added support for taking, deleting, and restoring a cgsnapshot for NetApp 7mode and CDOT backends.
+
+Added backend driver for Coho Data storage.
+
+Added cinder backup driver for Google Cloud Storage.
+
+Added driver for Tegile IntelliFlash arrays.
+
+Added ability to backup snapshots.
+
+Support balanced FC port selection for Huawei drivers.
+
+HTTP connector for the Cinder Brocade FC Zone plugin. This connector allows for communication between the Brocade FC zone plugin and the switch to be over HTTP or HTTPs.  To make use of this connector, the user would add a configuration setting in the fabric block for a Brocade switch with the name as ‘fc_southbound_protocol’ with a value as ‘HTTP’ or ‘HTTPS’.
+
+Support for configuring Fibre Channel zoning on Brocade switches through Cinder Fibre Channel Zone Manager and Brocade Fibre Channel zone plugin. To zone in a Virtual Fabric, set the configuration option ‘fc_virtual_fabric_id’ for the fabric.
+
+The consistency group API now returns volume type IDs.
+
+Added support for API microversions, as well as /v3 API endpoint.
+
+Retype support added to CloudByte iSCSI driver.
+
+All Datera DataFabric backed volume-types will now use API version 2 with Datera DataFabric
+
+It is now possible to delete a volume and its snapshots by passing an additional argument to volume delete, “cascade=True”.
+
+New config option to enable discard (trim/unmap) support for any backend.
+
+Added backend driver for DISCO storage.
+
+Cinder FC Zone Manager Friendly Zone Names This feature adds support for Fibre Channel user friendly zone names if implemented by the volume driver. If the volume driver passes the host name and storage system to the Fibre Channel Zone Manager in the conn_info structure, the zone manager will use these names in structuring the zone name to provide a user friendly zone name.
+
+Added backend driver for Fujitsu ETERNUS DX (FC).
+
+Added backend driver for Fujitsu ETERNUS DX (iSCSI).
+
+Added manage/unmanage snapshot support for Huawei drivers.
+
+Added manage/unmanage volume support for Huawei drivers.
+
+Support cinder_img_volume_type property in glance image metadata to specify volume type.
+
+Consistency group support has been added to the LeftHand backend driver.
+
+Added snapshot manage/unmanage support to the HPE LeftHand driver.
+
+Added iSCSI CHAP uni-directional authentication for NetApp drivers.
+
+Support for Consistency Groups in the NetApp E-Series Volume Driver.
+
+Added backend driver for Nexenta Edge iSCSI storage.
+
+Added backend driver for NexentaStor5 iSCSI storage.
+
+Added backend driver for NexentaStor5 NFS storage.
+
+Manage and unmanage support has been added to the Nimble backend driver.
+
+Added additional metrics reported to the scheduler for Pure Volume Drivers for better filtering and weighing functions.
+
+Added config option to enable/disable automatically calculation an over-subscription ratio max for Pure Volume Drivers. When disabled the drivers will now respect the max_oversubscription_ratio config option.
+
+New config option for Pure Storage volume drivers pure_eradicate_on_delete. When enabled will permanantly eradicate data instead of placing into pending eradication state.
+
+Added Cheesecake (v2.1) replication support to the Pure Storage Volume drivers.
+
+Added Migrate and Extend for Nexenta NFS driver.
+
+Added Retype functionality to Nexenta iSCSI and NFS drivers.
+
+Added v2.1 replication support to the HPE 3PAR driver.
+
+Added v2.1 replication support to the HPE LeftHand driver.
+
+Added replication v2.1 support to the IBM Storwize driver.
+
+Added RPC backward compatibility layer similar to the one implemented in Nova. This means that Cinder services can be upgraded one-by-one without breakage. After all the services are upgraded SIGHUP signals should be issued to all the services to signal them to reload cached minimum RPC versions. Alternative is of course restart of them. Please note that cinder-api service doesn’t support SIGHUP yet. Please also take into account that all the rolling upgrades capabilities are considered tech preview, as we don’t have a CI testing it yet.
+
+Added Consistency Group support in ScaleIO driver.
+
+Added support for manage/unmanage volume in the ScaleIO driver.
+
+Added QoS support in ScaleIO driver.
+
+cinder-backup service is now decoupled from cinder-volume, which allows more flexible scaling.
+
+Split nested quota support into a separate driver. In order to use nested quotas, change the following config quota_driver = cinder.quota.NestedDbQuotaDriver after running the following admin API “os-quota-sets/validate_setup_for_nested_quota_use” command to ensure the existing quota values make sense to nest.
+
+Added multiple management IP support to Storwize SVC driver.
+
+Added multiple pools support to Storwize SVC driver.
+
+Added support for ZeroMQ messaging driver in cinder single backend config.
+
+Locks may use Tooz as abstraction layer now, to support distributed lock managers and prepare Cinder to better support HA configurations.
+
+The updated_at timestamp is now returned in listing detail.
+
+Added support for manage volume in the VMware VMDK driver.
+
+Configrable migration rate in VNX driver via metadata
+
+Adds v2.1 replication support in VNX Cinder driver.
+
+Cloning of consistency group added to EMC VNX backend driver.
+
+Added replication v2.1 support to the IBM XIV/DS8K driver.
+
+Support for creating a consistency group from consistency group in XtremIO.
+
+Volume manage/unmanage support for Oracle ZFSSA iSCSI and NFS drivers.

@@ -1,0 +1,26 @@
+
+Use the value of the network ‘mtu’ attribute for the MTU of virtual network interfaces such as veth pairs, patch ports, and tap devices involving a particular network.
+
+Enable end-to-end support for arbitrary MTUs including jumbo frames between instances and provider networks by moving MTU disparities between flat or VLAN networks and overlay networks from layer-2 devices to layer-3 devices that support path MTU discovery (PMTUD).
+
+When advertise_mtu is set in the config, Neutron supports advertising the LinkMTU using Router Advertisements.
+
+Ports that failed to bind when an L2 agent was offline can now recover after the agent is back online.
+
+Neutron now provides a way for admins to manually schedule agents, allowing host resources to be tested before they are enabled for tenant use.
+
+Neutron now supports IPv6 Prefix Delegation for the automatic assignment of CIDRs to IPv6 subnets. For more information on the usage and configuration of this feature, see the OpenStack Networking Guide.
+
+LBaaS V2 reference driver is now based on Octavia, an operator grade scalable, reliable Load Balancer platform.
+
+The OVS agent may now be restarted without affecting data plane connectivity.
+
+Pluggable IPAM enables the use of alternate or third-party IPAM.
+
+The original, non-pluggable version of IPAM is enabled by default.
+
+Router high availability (L3 HA / VRRP) now works when layer 2 population (l2pop) is enabled.
+
+VPNaaS reference drivers now work with HA routers.
+
+Networks used for VRRP traffic for HA routers may now be configured to use a specific segmentation type or physical network tag.

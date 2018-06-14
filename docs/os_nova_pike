@@ -1,0 +1,324 @@
+
+The versioned_notifications_topic configuration option; This enables one to configure the topics used for versioned notifications.
+
+Adds interface attach/detach support to baremetal nodes using ironic virt
+driver. Note that the instance info cache update relies on getting a
+network-changed event from neutron, or on the periodic task healing
+the instance info cache, both of which are asynchronous. This means that
+nova’s cached network information (which is what is sent e.g. in the
+GET /servers responses) may not be up to date immediately after the
+attachment or detachment.
+
+Add support for LAN9118 as a valid nic for hw_vif_model property in qemu.
+
+The fields locked and display_description have been added to
+InstancePayload. Versioned notifications for instance actions
+will include these fields.
+A few examples of versioned notifications that use InstancePayload:
+
+instance.create
+instance.delete
+instance.resize
+instance.pause
+
+
+
+instance.create
+instance.delete
+instance.resize
+instance.pause
+
+Add PCIWeigher weigher. This can be used to ensure non-PCI instances
+don’t occupy resources on hosts with PCI devices. This can be configured
+using the [filter_scheduler] pci_weight_multiplier configuration
+option.
+
+The network.json metadata format has been amended for IPv6 networks
+under Neutron control. The type that is shown has been changed
+from being always set to ipv6_dhcp to correctly reflecting the
+ipv6_address_mode option in Neutron, so the type now will be
+ipv6_slaac, ipv6_dhcpv6-stateless or ipv6_dhcpv6-stateful.
+
+Enables to launch an instance from an iscsi volume with ironic virt
+driver. This feature requires an ironic service supporting API
+version 1.32 or later, which is present in ironic releases > 8.0.
+It also requires python-ironicclient >= 1.14.0.
+
+The model name vhostuser_vrouter_plug is set by the neutron contrail
+plugin during a VM (network port) creation.
+The libvirt compute driver now supports plugging virtual interfaces
+of type “contrail_vrouter” which are provided by
+the contrail-nova-vif-driver plugin [1].
+[1] https://github.com/Juniper/contrail-nova-vif-driver
+
+Added microversion v2.48 which standardize VM diagnostics response. It has a set of fields which each hypervisor will try to fill. If a hypervisor driver is unable to provide a specific field then this field will be reported as ‘None’.
+
+Microversion 2.53 changes service and hypervisor IDs to UUIDs to ensure
+uniqueness across cells. Prior to this, ID collisions were possible in
+multi-cell deployments. See the REST API Version History and
+Compute API reference for details.
+
+The nova-compute worker can automatically disable itself in the
+service database if consecutive build failures exceed a set threshold. The
+[compute]/consecutive_build_service_disable_threshold configuration option
+allows setting the threshold for this behavior, or disabling it entirely if
+desired.
+The intent is that an admin will examine the issue before manually
+re-enabling the service, which will avoid that compute node becoming a
+black hole build magnet.
+
+Supports a new method for deleting all inventory for a
+resource provider
+
+DELETE /resource-providers/{uuid}/inventories
+
+Return codes
+
+204 NoContent on success
+404 NotFound for missing resource provider
+
+405 MethodNotAllowed if a microversion is specified that is before
+this change (1.5)
+
+
+
+409 Conflict if inventory in use or if some other request concurrently
+updates this resource provider
+
+
+
+Requires OpenStack-API-Version placement 1.5
+
+
+DELETE /resource-providers/{uuid}/inventories
+
+204 NoContent on success
+404 NotFound for missing resource provider
+
+405 MethodNotAllowed if a microversion is specified that is before
+this change (1.5)
+
+
+
+409 Conflict if inventory in use or if some other request concurrently
+updates this resource provider
+
+
+
+The discover_hosts_in_cells_interval periodic task in the scheduler is now more efficient in that it can specifically query unmapped compute nodes from the cell databases instead of having to query them all and compare against existing host mappings.
+
+A new 2.47 microversion was added to the Compute API.  Users specifying this microversion or later will see the “flavor” information displayed as a dict when displaying server details via the servers REST API endpoint. If the user is prevented by policy from indexing extra-specs, then the “extra_specs” field will not be included in the flavor information.
+
+The libvirt compute driver now supports attaching volumes of type “drbd”.
+See the DRBD documentation for more information.
+
+Add granularity to the os_compute_api:os-flavor-manage policy
+with the addition of distinct actions for create and delete:
+
+os_compute_api:os-flavor-manage:create
+os_compute_api:os-flavor-manage:delete
+
+To address backwards compatibility, the new rules added to the
+flavor_manage.py policy file, default to the existing rule,
+os_compute_api:os-flavor-manage, if it is set to a non-default
+value.
+
+
+os_compute_api:os-flavor-manage:create
+os_compute_api:os-flavor-manage:delete
+
+Some hypervisors add a signature to their guests, e.g. KVM is adding
+KVMKVMKVM\0\0\0, Xen: XenVMMXenVMM.
+The existence of a hypervisor signature enables some paravirtualization
+features on the guest as well as disallowing certain drivers which test
+for the hypervisor to load e.g. Nvidia driver [1]:
+“The latest Nvidia driver (337.88) specifically checks
+for KVM as the hypervisor and reports Code 43 for the
+driver in a Windows guest when found.  Removing or
+changing the KVM signature is sufficient for the driver
+to load and work.”
+The new img_hide_hypervisor_id image metadata property hides the
+hypervisor signature for the guest.
+Currently only the libvirt compute driver can hide hypervisor signature
+for the guest host.
+To verify if hiding hypervisor id is working on Linux based system:
+$ cpuid | grep -i hypervisor_id
+
+
+The result should not be (for KVM hypervisor):
+$ hypervisor_id = KVMKVMKVM\0\0\0
+
+
+You can enable this feature by setting the img_hide_hypervisor_id=true
+property in a Glance image.
+[1]: http://git.qemu.org/?p=qemu.git;a=commitdiff;h=f522d2a
+
+
+The 1.7 version of the placement API changes handling of
+PUT /resource_classes/{name} to be a create or verification of the
+resource class with {name}. If the resource class is a custom resource
+class and does not already exist it will be created and a 201 response
+code returned. If the class already exists the response code will be
+204. This makes it possible to check or create a resource class in one
+request.
+
+This release adds support for Netronome’s Agilio OVS VIF type. In order to use the accelerated plugging modes, external Neutron and OS-VIF plugins are required. Consult https://github.com/Netronome/agilio-ovs-openstack-plugin for installation and operation instructions. Consult the Agilio documentation available at https://support.netronome.com/ for more information about the plugin compatibility and support matrix.
+
+The virtio-forwarder VNIC type has been added to the list of VNICs. This VNIC type is intended to request a low-latency virtio port inside the instance, likely backed by hardware acceleration. Currently the Agilio OVS external Neutron and OS-VIF plugins provide support for this VNIC mode.
+
+It is now possible to signal and perform an online volume size change
+as of the 2.51 microversion using the volume-extended external event.
+Nova will perform the volume extension so the host can detect its new size.
+It will also resize the device in QEMU so instance can detect
+the new disk size without rebooting.
+Currently only the libvirt compute driver with iSCSI and FC volumes
+supports the online volume size change.
+
+
+The 2.51 microversion exposes the events field in the response body for
+the GET /servers/{server_id}/os-instance-actions/{request_id} API. This
+is useful for API users to monitor when a volume extend operation completes
+for the given server instance. By default only users with the administrator
+role will be able to see event traceback details.
+
+Nova now uses oslo.middleware for request_id processing. This
+means that there is now a new X-OpenStack-Request-ID header
+returned on every request which mirrors the content of the
+existing X-Compute-Request-ID. The expected existence of this
+header is signaled by Microversion 2.46. If server version >= 2.46, you
+can expect to see this header in your results (regardless of
+microversion requested).
+
+A new 1.10 API microversion is added to the Placement REST API. This
+microversion adds support for the GET /allocation_candidates resource
+endpoint. This endpoint returns information about possible allocation
+requests that callers can make which meet a set of resource constraints
+supplied as query string parameters. Also returned is some inventory and
+capacity information for the resource providers involved in the allocation
+candidates.
+
+The placement API service can now be configured to support
+CORS.
+If a cors configuration group is present in the service’s configuration
+file (currently nova.conf), with allowed_origin configured, the values
+within will be used to configure the middleware. If cors.allowed_origin
+is not set, the middleware will not be used.
+
+Traits are added to the placement with Microversion 1.6.
+GET /traits: Returns all resource classes.
+PUT /traits/{name}: To insert a single custom trait.
+GET /traits/{name}: To check if a trait name exists.
+DELETE /traits/{name}: To delete the specified trait.
+GET /resource_providers/{uuid}/traits: a list of traits associated
+with a specific resource provider
+PUT /resource_providers/{uuid}/traits: Set all the traits for a
+specific resource provider
+DELETE /resource_providers/{uuid}/traits: Remove any existing trait
+associations for a specific resource provider
+
+
+
+GET /traits: Returns all resource classes.
+PUT /traits/{name}: To insert a single custom trait.
+GET /traits/{name}: To check if a trait name exists.
+DELETE /traits/{name}: To delete the specified trait.
+GET /resource_providers/{uuid}/traits: a list of traits associated
+with a specific resource provider
+PUT /resource_providers/{uuid}/traits: Set all the traits for a
+specific resource provider
+DELETE /resource_providers/{uuid}/traits: Remove any existing trait
+associations for a specific resource provider
+
+A new configuration option [quota]/recheck_quota has been added to
+recheck quota after resource creation to prevent allowing quota to be
+exceeded as a result of racing requests. It defaults to True, which makes
+it impossible for a user to exceed their quota. However, it will be
+possible for a REST API user to be rejected with an over quota 403 error
+response in the event of a collision close to reaching their quota limit,
+even if the user has enough quota available when they made the request.
+Operators may want to set the option to False to avoid additional load on
+the system if allowing quota to be exceeded because of racing requests is
+considered acceptable.
+
+A new configuration option reserved_host_cpus has been added for compute services. It helps operators to provide how many physical CPUs they would like to reserve for the hypervisor separately from what the instances use.
+
+Versioned instance.update notification will be sent when server’s tags field is updated.
+
+Adds support to OVS vif type with direct port (SR-IOV).
+In order to use this OVS acceleration mode, openvswitch 2.8.0
+and ‘Linux Kernel’ 4.8 are required. This feature allows control of
+an SR-IOV virtual function (VF) via OpenFlow control plane and gain
+improved performance of ‘Open vSwitch’. Please note that in Pike
+release we can’t differentiate between SR-IOV hardware and OVS offloaded
+on the same host. This limitation should be resolved when the
+enable-sriov-nic-features will be completed.
+Until then operators can use host aggregates to ensure that they can
+schedule instances on specific hosts based on hardware.
+
+Adds support for applying tags when creating a server. The tag schema is the same as in the 2.26 microversion.
+
+Added support for Keystone middleware feature for interaction of Nova with
+the Glance API. With this support, if service token is sent along with the
+user token, then the expiration of user token will be ignored. In order to
+use this functionality a service user needs to be created first.
+Add the service user configurations in nova.conf under service_user
+group and set send_service_user_token flag to True.
+
+Note
+This feature is already implemented for Nova interaction with the
+Cinder and Neutron APIs in Ocata.
+
+
+
+The libvirt compute driver now supports connecting to Veritas HyperScale volume backends.
+
+Microversion 2.49 brings device role tagging to the attach operation of
+volumes and network interfaces. Both network interfaces and volumes can now
+be attached with an optional tag parameter. The tag is then exposed to
+the guest operating system through the metadata API. Unlike the original
+device role tagging feature, tagged attach does not support the config
+drive. Because the config drive was never designed to be dynamic, it only
+contains device tags that were set at boot time with API 2.32. Any changes
+made to tagged devices with API 2.49 while the server is running will only
+be reflected in the metadata obtained from the metadata API. Because of
+metadata caching, changes may take up to metadata_cache_expiration to
+appear in the metadata API. The default value for
+metadata_cache_expiration is 15 seconds.
+Tagged volume attachment is not supported for shelved-offloaded instances.
+Tagged device attachment (both volumes and network interfaces) is not
+supported for Cells V1 deployments.
+
+
+The following volume attach and volume detach versioned notifications have
+been added to the nova-compute service:
+instance.volume_attach.start
+instance.volume_attach.end
+instance.volume_attach.error
+instance.volume_detach.start
+instance.volume_detach.end
+
+
+
+instance.volume_attach.start
+instance.volume_attach.end
+instance.volume_attach.error
+instance.volume_detach.start
+instance.volume_detach.end
+
+The XenAPI compute driver now supports creating servers with virtual
+interface and block device tags which was introduced in the 2.32
+microversion.
+Note that multiple paths will exist for a tagged disk for the following
+reasons:
+
+HVM guests may not have the paravirtualization (PV) drivers installed,
+in which case the disk will be accessible on the ide bus. When the
+PV drivers are installed the disk will be accessible on the xen bus.
+Windows guests with PV drivers installed expose devices in a different
+way to Linux guests with PV drivers. Linux systems will see disk paths
+under /sys/devices/, but Windows guests will see them in the
+registry, for example HKLM\System\ControlSet001\Enum\SCSIDisk. These
+two disks are both on the xen bus.
+
+See the following XenAPI documentation for details: http://xenbits.xen.org/docs/4.2-testing/misc/vbd-interface.txt
+

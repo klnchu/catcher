@@ -23,7 +23,7 @@ func genUrl(component, version string) string{
 }
 
 func genFileName(component, version string) string{
-	return fmt.Sprintf("os_%s_%s", component, version)
+	return fmt.Sprintf("docs/os_%s_%s", component, version)
 }
 
 func Do(component, version string) error {

@@ -1,0 +1,116 @@
+
+Kaminario K2 iSCSI driver now supports non discovery multipathing (Nova and
+Cinder won’t use iSCSI sendtargets) which can be enabled by setting
+disable_discovery to true in the configuration.
+
+RBD driver supports returning a static total capacity value instead of a
+dynamic value like it’s been doing.  Configurable with
+report_dynamic_total_capacity configuration option.
+
+Dell SC - Compression and Dedupe support added for Storage Centers that support the options.
+
+Dell SC - Volume and Group QOS support added for Storage Centers that support and have enabled the option.
+
+Added ability to query backups by project ID.
+
+Add support to configure IO ports option in Dell EMC Unity driver.
+
+Added reset status API to group snapshot.
+
+Added reset status API to generic volume group.
+
+Add v2.1 volume replication support in VMAX driver.
+
+The IBM_Storage driver has been open sourced. This means that there is no
+more need to download the package from the IBM site. The only requirement
+remaining is to install pyxcli, which is available through pypi:
+``sudo pip install pyxcli``
+
+
+
+
+Cinder is now collecting capacity data, including virtual free capacity etc from the backends. A notification which includes that data is periodically emitted.
+
+Added update-host command for consistency groups in cinder-manage.
+
+Added Datera EDF API 2.1 support.
+
+Added Datera Multi-Tenancy Support.
+
+Added Datera Template Support.
+
+Broke Datera driver up into modules.
+
+The force boolean parameter has been added to the volume delete API.  It may be used in combination with cascade. This also means that volume force delete is available in the base volume API rather than only in the volume_admin_actions extension.
+
+Added backend driver for Dell EMC Unity storage.
+
+Add consistent group capability to generic volume groups in VNX driver.
+
+Added new Hitachi VSP FC Driver. The VSP driver supports all Hitachi VSP Family and HUSVM.
+
+Adds new Hitachi VSP iSCSI Driver.
+
+Hitachi VSP drivers have a new config option vsp_compute_target_ports to specify IDs of the storage ports used to attach volumes to compute nodes. The default is the value specified for the existing vsp_target_ports option. Either or both of vsp_compute_target_ports and vsp_target_ports must be specified.
+
+Hitachi VSP drivers have a new config option vsp_horcm_pair_target_ports to specify IDs of the storage ports used to copy volumes by Shadow Image or Thin Image. The default is the value specified for the existing vsp_target_ports option. Either or both of vsp_horcm_pair_target_ports and vsp_target_ports must be specified.
+
+Added the ability to list manageable volumes and snapshots to HNAS NFS driver.
+
+Optimize backend reporting capabilities for Huawei drivers.
+
+Added support for querying group details with volume ids which are in this group. For example, “groups/{group_id}?list_volume=True”.
+
+Added driver for the InfiniBox storage array.
+
+Added backend FC and iSCSI drivers for NEC Storage.
+
+The NetApp cDOT drivers report to the scheduler, for each FlexVol pool, the fraction of the shared block limit that has been consumed by dedupe and cloning operations. This value, netapp_dedupe_used_percent, may be used in the filter & goodness functions for better placement of new Cinder volumes.
+
+Added extend method to NFS driver for NexentaStor 5.
+
+Added secure HTTP support for REST API calls in the NexentaStor5 driver. Use of HTTPS is set True by default with option nexenta_use_https.
+
+Added support for snapshots in the NFS driver. This functionality is only enabled if nfs_snapshot_support is set to True in cinder.conf. Cloning volumes is only supported if the source volume is not attached.
+
+Added Nimble Storage Fibre Channel backend driver.
+
+Add Support for QoS in the Nimble Storage driver. QoS is available from Nimble OS release 4.x and above.
+
+Add Support for deduplication of volumes in the Nimble Storage driver.
+
+The Nimble backend driver has been updated to use REST for array communication.
+
+Add consistent group capability to generic volume groups in Pure drivers.
+
+Allow the RBD driver to work with max_over_subscription_ratio.
+
+Added v2.1 replication support to RBD driver.
+
+Added backend ISCSI driver for Reduxio.
+
+Add provider_id in the detailed view of a volume for admin.
+
+Added volume driver for QNAP ES Storage Driver.
+
+The SolidFire driver will recognize 4 new QoS spec keys to allow an administrator to specify QoS settings which are scaled by the size of the volume. ‘ScaledIOPS’ is a flag which will tell the driver to look for ‘scaleMin’, ‘scaleMax’ and ‘scaleBurst’ which provide the scaling factor from the minimum values specified by the previous QoS keys (‘minIOPS’, ‘maxIOPS’, ‘burstIOPS’). The administrator must take care to assure that no matter what the final calculated QoS values follow minIOPS <= maxIOPS <= burstIOPS. A exception will be thrown if not. The QoS settings are also checked against the cluster min and max allowed and truncated at the min or max if they exceed.
+
+Add multipath enhancement to Storwize iSCSI driver.
+
+Added support to querying snapshots filtered by metadata key/value using ‘metadata’ optional URL parameter. For example, “/v3/snapshots?metadata=={‘key1’:’value1’}”.
+
+Added support for ZMQ messaging layer in multibackend configuration.
+
+Add support to backup volume using snapshot in the Unity driver.
+
+Enable backup snapshot optimal path by implementing attach and detach snapshot in the VMAX driver.
+
+Added the ability to create a CG from a source CG with the VMAX driver.
+
+Support for compression on VMAX All Flash in the VMAX driver.
+
+Storage assisted volume migration from one Pool/SLO/Workload combination to another, on the same array, via retype, for the VMAX driver. Both All Flash and Hybrid VMAX3 arrays are supported. VMAX2 is not supported.
+
+VNX cinder driver now supports async migration during volume cloning. By default, the cloned volume will be available after the migration starts in the VNX instead of waiting for the completion of migration. This greatly accelerates the cloning process. If user wants to disable this, he could add --metadata async_migrate=False when creating volume from source volume/snapshot.
+
+Add consistent group capability to generic volume groups in the XtremIO driver.
