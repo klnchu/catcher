@@ -52,8 +52,8 @@ func Do(component, version string) error {
 	body := doc.Find(".docs-body").Eq(0)
 	framework := body.ChildrenFiltered(".section").Eq(0)
 	framework.Find(".section").Each(func(i int, s *goquery.Selection){
-		id, exit := s.Attr("id")
-		if !exit{
+		id, exist := s.Attr("id")
+		if !exist{
 			s.Next()
 		}
 		if strings.Contains(id, "new-features"){
