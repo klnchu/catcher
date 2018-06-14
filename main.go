@@ -3,11 +3,12 @@
 package main
 
 import (
+	"os"
 	"fmt"
-	"time"
+	"strings"
 	"net/http"
 	
-	// "github.com/PuerkitoBio/goquery"
+	"github.com/PuerkitoBio/goquery"
 )
 
 const OS_BASE_URL = "https://docs.openstack.org/releasenotes/"
@@ -21,8 +22,12 @@ func genUrl(component, version string) string{
 	return fmt.Sprintf("%s/%s/%s.html", OS_BASE_URL, component, version)
 }
 
+func genFileName(component, version string) string{
+	return fmt.Sprintf("os_%s_%s", component, version)
+}
+
 func Do(component, version string) error {
-	fmt.Println("------------------------------")
+	fmt.Println("-----------------------------------------")
 	fmt.Printf("Do %s: %s document.\n", component, version)
 	
 	url := genUrl(component, version)
@@ -34,16 +39,32 @@ func Do(component, version string) error {
 	if resp.StatusCode != 200 {
 		fmt.Printf("status code error: %d %s\n", resp.StatusCode, resp.Status)
 	}
-	// doc, err := goquery.NewDocumentFromReader(resp.Body)
-	// if err != nil {
-	// 	return err
-	// }
-	// doc.find(".section").Each(func(i int, s *goquery.Selection) {
-	// 	// For each item found, get the band and title
-	// 	band := s.Find("a").Text()
-	// 	title := s.Find("i").Text()
-	// 	fmt.Printf("Review %d: %s - %s\n", i, band, title)
-	//   })
+	doc, err := goquery.NewDocumentFromReader(resp.Body)
+	if err != nil {
+		return err
+	}
+	file, err := os.Create(genFileName(component, version))
+	if err != nil{
+		return err
+	}
+	defer file.Close()
+
+	body := doc.Find(".docs-body").Eq(0)
+	framework := body.ChildrenFiltered(".section").Eq(0)
+	framework.Find(".section").Each(func(i int, s *goquery.Selection){
+		id, exit := s.Attr("id")
+		if !exit{
+			s.Next()
+		}
+		if strings.Contains(id, "new-features"){
+			s.Find("ul").Each(func(j int, ul *goquery.Selection){
+				file.WriteString(ul.Text())
+			})
+		}
+	})
+	
+	file.Sync()
+
 	return nil
 }
 
@@ -51,11 +72,11 @@ func main(){
 	fmt.Println("Let's Do it.")
 	for _, component:= range  components {
 		for _, version := range  versions {
-			go func(_component, _version string){
-				Do(_component, _version)
-			}(component, version)
+			err := Do(component, version)
+			if err != nil{
+				fmt.Println(err)
+			}
 		}
 	}
-	time.Sleep(time.Second * 3)
 	fmt.Println("Catch end")
 }
