@@ -1,0 +1,125 @@
+
+The identifier ploop has been added to the list of supported disk formats in Glance. The respective configuration option has been updated and the default list shows ploop as a supported format.
+
+Image ‘visibility’ changes.
+Prior to Ocata, an image with ‘private’ visibility could become shared by
+adding members to it, though its visibility remained ‘private’.  In order
+to make the visibility of images more clear, in Ocata the following
+changes are introduced:
+A new value for visibility, ‘shared’, is introduced.  Images that have
+or can accept members will no longer be displayed as having ‘private’
+visibility, reducing confusion among end users.
+An image must have ‘shared’ visibility in order to accept members.
+This provides a safeguard from ‘private’ images being shared
+inadvertently.
+In order to preserve backward compatibilty with the current sharing
+workflow, the default visibility of an image in Ocata is ‘shared’.
+Consistent with pre-Ocata behavior, this will allow the image to accept
+member operations without first updating the visibility of the image.
+(Keep in mind that an image with visibility ‘shared’ but having no
+members is not actually accessible to anyone other than the image
+owner, so this is not in itself a security problem.)
+
+
+
+
+
+Prior to Ocata, an image with ‘private’ visibility could become shared by
+adding members to it, though its visibility remained ‘private’.  In order
+to make the visibility of images more clear, in Ocata the following
+changes are introduced:
+A new value for visibility, ‘shared’, is introduced.  Images that have
+or can accept members will no longer be displayed as having ‘private’
+visibility, reducing confusion among end users.
+An image must have ‘shared’ visibility in order to accept members.
+This provides a safeguard from ‘private’ images being shared
+inadvertently.
+In order to preserve backward compatibilty with the current sharing
+workflow, the default visibility of an image in Ocata is ‘shared’.
+Consistent with pre-Ocata behavior, this will allow the image to accept
+member operations without first updating the visibility of the image.
+(Keep in mind that an image with visibility ‘shared’ but having no
+members is not actually accessible to anyone other than the image
+owner, so this is not in itself a security problem.)
+
+
+
+A new value for visibility, ‘shared’, is introduced.  Images that have
+or can accept members will no longer be displayed as having ‘private’
+visibility, reducing confusion among end users.
+An image must have ‘shared’ visibility in order to accept members.
+This provides a safeguard from ‘private’ images being shared
+inadvertently.
+In order to preserve backward compatibilty with the current sharing
+workflow, the default visibility of an image in Ocata is ‘shared’.
+Consistent with pre-Ocata behavior, this will allow the image to accept
+member operations without first updating the visibility of the image.
+(Keep in mind that an image with visibility ‘shared’ but having no
+members is not actually accessible to anyone other than the image
+owner, so this is not in itself a security problem.)
+
+Image visibility may be specified at the time of image creation.
+As mentioned above, the default visibility of an image is ‘shared’.
+If a user wants an image to be private and not accept any members, a
+visibility of ‘private’ can be explicitly assigned at the time of
+creation.
+Such an image will require its visibility to be updated to
+‘shared’ before it will accept members.
+
+
+
+
+
+As mentioned above, the default visibility of an image is ‘shared’.
+If a user wants an image to be private and not accept any members, a
+visibility of ‘private’ can be explicitly assigned at the time of
+creation.
+Such an image will require its visibility to be updated to
+‘shared’ before it will accept members.
+
+
+
+Such an image will require its visibility to be updated to
+‘shared’ before it will accept members.
+
+Image visibility is changed using the image update (PATCH) call.
+Note: This is not a change.  It’s simply mentioned for completeness.
+
+
+
+Note: This is not a change.  It’s simply mentioned for completeness.
+
+A new value for the Image ‘visibility’ field, ‘community’, is introduced.
+An image with ‘community’ visibility is available for consumption by any
+user.
+In order to prevent users spamming other users’ image-list response,
+community images are not included in the image-list response unless
+specifically requested by a user.
+For example, GET v2/images?visibility=community
+As is standard behavior for the image-list call, other filters may
+be applied to the request.  For example, to see the community images
+supplied by user 931efe8a-0ad7-4610-9116-c199f8807cda, the
+following call would be made: GET v2/images?visibility=community&owner=931efe8a-0ad7-4610-9116-c199f8807cda
+
+
+
+
+
+An image with ‘community’ visibility is available for consumption by any
+user.
+In order to prevent users spamming other users’ image-list response,
+community images are not included in the image-list response unless
+specifically requested by a user.
+For example, GET v2/images?visibility=community
+As is standard behavior for the image-list call, other filters may
+be applied to the request.  For example, to see the community images
+supplied by user 931efe8a-0ad7-4610-9116-c199f8807cda, the
+following call would be made: GET v2/images?visibility=community&owner=931efe8a-0ad7-4610-9116-c199f8807cda
+
+
+
+For example, GET v2/images?visibility=community
+As is standard behavior for the image-list call, other filters may
+be applied to the request.  For example, to see the community images
+supplied by user 931efe8a-0ad7-4610-9116-c199f8807cda, the
+following call would be made: GET v2/images?visibility=community&owner=931efe8a-0ad7-4610-9116-c199f8807cda

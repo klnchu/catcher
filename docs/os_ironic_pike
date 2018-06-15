@@ -1,0 +1,438 @@
+
+Adds a new hardware type, idrac, for Dell EMC integrated Dell Remote
+Access Controllers (iDRAC). idrac hardware type supports PXE-based
+provisioning using an iDRAC. It supports the following driver interfaces:
+boot: pxe
+console: no-console
+deploy: iscsi and direct
+inspect: idrac, inspector, and no-inspect
+management: idrac
+network: flat, neutron, and noop
+power:  idrac
+raid: idrac and no-raid
+storage: noop and cinder
+vendor: idrac
+
+
+
+boot: pxe
+console: no-console
+deploy: iscsi and direct
+inspect: idrac, inspector, and no-inspect
+management: idrac
+network: flat, neutron, and noop
+power:  idrac
+raid: idrac and no-raid
+storage: noop and cinder
+vendor: idrac
+
+Adds support for the following Boolean capabilities keys to
+ilo inspect interface:
+sriov_enabled
+has_ssd
+has_rotational
+rotational_drive_4800_rpm
+rotational_drive_5400_rpm
+rotational_drive_7200_rpm
+rotational_drive_10000_rpm
+rotational_drive_15000_rpm
+logical_raid_level_0
+logical_raid_level_1
+logical_raid_level_2
+logical_raid_level_10
+logical_raid_level_5
+logical_raid_level_6
+logical_raid_level_50
+logical_raid_level_60
+cpu_vt
+hardware_supports_raid
+has_nvme_ssd
+nvdimm_n
+logical_nvdimm_n
+persistent_memory
+
+
+
+sriov_enabled
+has_ssd
+has_rotational
+rotational_drive_4800_rpm
+rotational_drive_5400_rpm
+rotational_drive_7200_rpm
+rotational_drive_10000_rpm
+rotational_drive_15000_rpm
+logical_raid_level_0
+logical_raid_level_1
+logical_raid_level_2
+logical_raid_level_10
+logical_raid_level_5
+logical_raid_level_6
+logical_raid_level_50
+logical_raid_level_60
+cpu_vt
+hardware_supports_raid
+has_nvme_ssd
+nvdimm_n
+logical_nvdimm_n
+persistent_memory
+
+Adds SNMP request timeout and retries settings for the SNMP UDP transport. Some SNMP devices take longer than others to respond. The new Ironic configuration settings [snmp]/udp_transport_retries and [snmp]/udp_transport_timeout allow to change the number of retries and the timeout values respectively for the the SNMP driver.
+
+Adds two new hardware types to support Cisco UCS Servers,
+cisco-ucs-standalone and cisco-ucs-managed.
+cisco-ucs-standalone supports driver interfaces for controlling UCS
+servers in standalone mode via either CIMC APIs or via IPMI.
+cisco-ucs-managed is a superset of cisco-ucs-standalone and
+supports additional driver interfaces for controlling the UCS server via
+UCSM.
+To support these hardware types the following Ironic driver interfaces were
+made available to be configured on a node:
+
+node.power_interface can be set to:
+cimc for CIMC API power control (power on/off, reboot, etc.)
+ucsm for UCSM API power control (power on/off, reboot, etc.)
+
+
+node.management_interface can be set to:
+cimc for CIMC API management control (setting the boot device, etc.)
+ucsm for UCSM API management control (setting the boot device, etc.)
+
+
+
+
+
+node.power_interface can be set to:
+cimc for CIMC API power control (power on/off, reboot, etc.)
+ucsm for UCSM API power control (power on/off, reboot, etc.)
+
+
+node.management_interface can be set to:
+cimc for CIMC API management control (setting the boot device, etc.)
+ucsm for UCSM API management control (setting the boot device, etc.)
+
+
+
+cimc for CIMC API power control (power on/off, reboot, etc.)
+ucsm for UCSM API power control (power on/off, reboot, etc.)
+
+cimc for CIMC API management control (setting the boot device, etc.)
+ucsm for UCSM API management control (setting the boot device, etc.)
+
+Adds support for generating Guru Meditation Reports (GMR) for both ironic-api and ironic-conductor services. GMR provides debugging information that can be used to obtain an accurate view on the current state of the system. For example, what threads are running, what configuration parameters are in effect, and more.
+
+Adds support to provision an instance in UEFI secure boot for
+irmc-pxe boot interface.
+
+Adds support for the Redfish
+standard via a new redfish hardware type. (There is no equivalent
+“classic” driver for this.) It uses two new interfaces:
+redfish power interface supports all hard and soft power operations
+redfish management interface supports:
+getting and setting the boot device (PXE, disk, CD-ROM or BIOS)
+making the configured boot device persistent or not
+injecting NMI
+
+
+
+
+
+redfish power interface supports all hard and soft power operations
+redfish management interface supports:
+getting and setting the boot device (PXE, disk, CD-ROM or BIOS)
+making the configured boot device persistent or not
+injecting NMI
+
+
+
+getting and setting the boot device (PXE, disk, CD-ROM or BIOS)
+making the configured boot device persistent or not
+injecting NMI
+
+Allows updating hardware interfaces on nodes in the available state.
+
+New configuration option [DEFAULT]/ldlinux_32 can be used to set the
+location of the ldlinux.c32 file (from the syslinux package).
+The default behavior is to look for it in the following locations:
+/usr/lib/syslinux/modules/bios/ldlinux.c32
+/usr/share/syslinux/ldlinux.c32
+
+
+
+/usr/lib/syslinux/modules/bios/ldlinux.c32
+/usr/share/syslinux/ldlinux.c32
+
+Adds support for storing the configdrive in Ceph Object Gateway (radosgw) instead
+of the OpenStack Object service (swift) using the compatible API.
+
+Adds support to use the radosgw authentication mechanism that relies
+on a user name and a password instead of an authentication token.
+The following options must be specified in ironic configuration file:
+[swift]/auth_url
+[swift]/username
+[swift]/password
+
+
+
+[swift]/auth_url
+[swift]/username
+[swift]/password
+
+Adds OSProfiler support.
+This cross-project profiling library provides the ability to trace various
+OpenStack requests through all OpenStack services that support it.
+For more information, see
+https://docs.openstack.org/ironic/latest/contributor/osprofiler-support.html.
+
+Adds a boolean flag called force_persistent_boot_device into
+a node’s driver_info to enable persistent behavior when you
+set the boot device during deploy and cleaning operations. This
+flag will override a non-persistent behavior in the cleaning and
+deploy process.
+For more information, see https://bugs.launchpad.net/ironic/+bug/1703945.
+
+Adds a new hardware type ilo for iLO 4 based Proliant Gen 8 and Gen 9
+servers. This hardware type supports virtual media and PXE based boot
+using HPE iLO 4 management engine. The following driver interfaces
+are supported:
+boot: ilo-virtual-media and ilo-pxe
+console: ilo and no-console
+deploy: iscsi and direct
+inspect: ilo, inspector and no-inspect
+management: ilo
+network: flat, noop and neutron
+power:  ilo
+raid: no-raid and agent
+
+
+
+boot: ilo-virtual-media and ilo-pxe
+console: ilo and no-console
+deploy: iscsi and direct
+inspect: ilo, inspector and no-inspect
+management: ilo
+network: flat, noop and neutron
+power:  ilo
+raid: no-raid and agent
+
+The ipmi hardware type now supports ipmitool vendor interface
+(similar to classic ipmitool drivers).
+
+Adds new boot interface named irmc-pxe for PXE booting FUJITSU PRIMERGY servers.
+
+Adds clean step restore_irmc_bios_config to restore BIOS config for a node with an irmc-based driver during automatic cleaning.
+
+Adds support for booting from remote volumes via the irmc-virtual-media
+boot interface. It enables boot configuration for iSCSI or FibreChannel
+via out-of-band network. For details, see the iRMC driver documentation.
+
+Adds configuration option [console]terminal_timeout to allow setting
+the time (in seconds) of inactivity, after which a socat-based
+console terminates.
+
+Adds version 1.33 of the REST API, which exposes the storage_interface
+field of the node resource. This version also exposes
+default_storage_interface and enable_storage_interfaces fields
+of the driver resource.
+There are 2 available storage interfaces:
+
+noop: This interface provides nothing regarding storage.
+cinder: This interface enables a node to attach and detach volumes
+by leveraging cinder API.
+
+A storage interface can be set when creating or updating a node. Enabled
+storage interfaces are defined via the
+[DEFAULT]/enabled_storage_interfaces configuration option. A default
+interface for a created node can be specified with
+[DEFAULT]/default_storage_interface configuration option.
+
+
+noop: This interface provides nothing regarding storage.
+cinder: This interface enables a node to attach and detach volumes
+by leveraging cinder API.
+
+Adds storage_interface field to the node-related notifications:
+baremetal.node.create.* (new payload version 1.2)
+baremetal.node.update.* (new payload version 1.2)
+baremetal.node.delete.* (new payload version 1.2)
+baremetal.node.maintenance.* (new payload version 1.4)
+baremetal.node.console.* (new payload version 1.4)
+baremetal.node.power_set.* (new payload version 1.4)
+baremetal.node.power_state_corrected.* (new payload version 1.4)
+baremetal.node.provision_set.* (new payload version 1.4)
+
+
+
+baremetal.node.create.* (new payload version 1.2)
+baremetal.node.update.* (new payload version 1.2)
+baremetal.node.delete.* (new payload version 1.2)
+baremetal.node.maintenance.* (new payload version 1.4)
+baremetal.node.console.* (new payload version 1.4)
+baremetal.node.power_set.* (new payload version 1.4)
+baremetal.node.power_state_corrected.* (new payload version 1.4)
+baremetal.node.provision_set.* (new payload version 1.4)
+
+The OneView drivers now retain the next boot device in node’s internal
+info when setting a boot device is requested. It is applied on the node
+when it is power cycled.
+
+Adds a new hardware type oneview for HPE OneView supported
+servers. This hardware type supports the following driver interfaces:
+boot: pxe
+console: no-console
+deploy: oneview-direct and oneview-iscsi
+(based on “direct” and “iscsi” respectively)
+inspect: oneview and no-inspect
+management: oneview
+network: flat, neutron and no-op
+power: oneview
+raid: no-raid and agent
+
+
+
+boot: pxe
+console: no-console
+deploy: oneview-direct and oneview-iscsi
+(based on “direct” and “iscsi” respectively)
+inspect: oneview and no-inspect
+management: oneview
+network: flat, neutron and no-op
+power: oneview
+raid: no-raid and agent
+
+Port group information (mode and properties fields) is now passed to Neutron via the port’s binding:profile field. This allows an ML2 driver to configure the port bonding automatically.
+
+Adds a physical_network field to the port object in REST API version
+1.34.
+This field specifies the name of the physical network to which the port is
+connected, and is empty by default.  This field may be set by the operator
+to allow the Bare Metal service to incorporate physical network information
+when attaching virtual interfaces (VIFs).
+The REST API endpoints related to ports provide support for the
+physical_network field.  The multi-tenancy documentation
+provides information on how to configure and use physical networks.
+
+
+Adds support for rolling upgrades, starting from upgrading Ocata to Pike. For details, see http://docs.openstack.org/ironic/latest/admin/upgrade-guide.html.
+
+Adds a new hardware type snmp for SNMP powered systems.
+It supports the following driver interfaces:
+boot: pxe
+deploy: iscsi, direct
+power:  snmp
+management:  fake
+
+
+
+boot: pxe
+deploy: iscsi, direct
+power:  snmp
+management:  fake
+
+Adds new configuration option [console]/socat_address to set the
+binding address for socat-based console. The default is the value of the
+[DEFAULT]my_ip option of the conductor responsible for the node.
+
+Adds support for volume connectors and volume targets with new API
+endpoints /v1/volume/connectors and /v1/volume/targets. These
+endpoints are available with API version 1.32 or later. These new
+resources are used to connect a node to a volume. A volume connector
+represents connector information of a node such as an iSCSI initiator. A
+volume target provides volume information such as an iSCSI target. These
+endpoints are available:
+
+GET /v1/volume/connectors for listing volume connectors
+POST /v1/volume/connectors for creating a volume connector
+GET /v1/volume/connectors/<UUID> for showing a volume connector
+PATCH /v1/volume/connectors/<UUID> for updating a volume connector
+DELETE /v1/volume/connectors/<UUID> for deleting a volume connector
+GET /v1/volume/targets for listing volume targets
+POST /v1/volume/targets for creating a volume target
+GET /v1/volume/targets/<UUID> for showing a volume target
+PATCH /v1/volume/targets/<UUID> for updating a volume target
+DELETE /v1/volume/targets/<UUID> for deleting a volume target
+
+The Volume resources also can be listed as sub resources of nodes:
+
+GET /v1/nodes/<node>/volume/connectors
+GET /v1/nodes/<node>/volume/targets
+
+Root endpoints of volume resources are also added. These endpoints provide
+links to volume connectors and volume targets:
+
+GET /v1/volume
+GET /v1/node/<node>/volume
+
+When a volume connector or a volume target is created, updated, or
+deleted, these CRUD notifications can be emitted:
+
+baremetal.volumeconnector.create.start
+baremetal.volumeconnector.create.end
+baremetal.volumeconnector.create.error
+baremetal.volumeconnector.update.start
+baremetal.volumeconnector.update.end
+baremetal.volumeconnector.update.error
+baremetal.volumeconnector.delete.start
+baremetal.volumeconnector.delete.end
+baremetal.volumeconnector.delete.error
+baremetal.volumetarget.create.start
+baremetal.volumetarget.create.end
+baremetal.volumetarget.create.error
+baremetal.volumetarget.update.start
+baremetal.volumetarget.update.end
+baremetal.volumetarget.update.error
+baremetal.volumetarget.delete.start
+baremetal.volumetarget.delete.end
+baremetal.volumetarget.delete.error
+
+
+
+GET /v1/volume/connectors for listing volume connectors
+POST /v1/volume/connectors for creating a volume connector
+GET /v1/volume/connectors/<UUID> for showing a volume connector
+PATCH /v1/volume/connectors/<UUID> for updating a volume connector
+DELETE /v1/volume/connectors/<UUID> for deleting a volume connector
+GET /v1/volume/targets for listing volume targets
+POST /v1/volume/targets for creating a volume target
+GET /v1/volume/targets/<UUID> for showing a volume target
+PATCH /v1/volume/targets/<UUID> for updating a volume target
+DELETE /v1/volume/targets/<UUID> for deleting a volume target
+
+GET /v1/nodes/<node>/volume/connectors
+GET /v1/nodes/<node>/volume/targets
+
+GET /v1/volume
+GET /v1/node/<node>/volume
+
+baremetal.volumeconnector.create.start
+baremetal.volumeconnector.create.end
+baremetal.volumeconnector.create.error
+baremetal.volumeconnector.update.start
+baremetal.volumeconnector.update.end
+baremetal.volumeconnector.update.error
+baremetal.volumeconnector.delete.start
+baremetal.volumeconnector.delete.end
+baremetal.volumeconnector.delete.error
+baremetal.volumetarget.create.start
+baremetal.volumetarget.create.end
+baremetal.volumetarget.create.error
+baremetal.volumetarget.update.start
+baremetal.volumetarget.update.end
+baremetal.volumetarget.update.error
+baremetal.volumetarget.delete.start
+baremetal.volumetarget.delete.end
+baremetal.volumetarget.delete.error
+
+Adds DBDeadlock handling which may improve stability when using Galera. See https://bugs.launchpad.net/ironic/+bug/1639338. Number of retries depends on the configuration option [database]db_max_retries.
+
+Adds possibility to attach/detach VIFs to/from active nodes.
+
+Adds notifications for creation, updates, or deletions of port groups.
+Event types are formatted as follows:
+
+baremetal.portgroup.{create, update, delete}.{start,end,error}
+
+Also adds portgroup_uuid field to port notifications, port payload version
+bumped to 1.1.
+
+
+baremetal.portgroup.{create, update, delete}.{start,end,error}

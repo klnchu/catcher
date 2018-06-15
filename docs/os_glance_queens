@@ -1,0 +1,18 @@
+
+A new interoperable image import method, web-download is
+introduced.  This method allows an end user to import an image from
+a remote URL.  The image data is retrieved from the URL and stored
+in the Glance backend.  (In other words, this is a copy-from
+operation.)
+This feature is enabled by default, but it is optional.  Whether
+it is offered at your installation depends on the value of the
+enabled_import_methods configuration option in the glance-api.conf
+file (assuming, of course, that you have not disabled image import at
+your site).
+
+
+Added a plugin to inject image metadata properties to non-admin
+images created via the interoperable image import process.
+
+Added a new command glance-manage db check, the command will
+allow a user to check the status of upgrades in the database.

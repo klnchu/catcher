@@ -1,0 +1,167 @@
+
+Adds support for inter-service notifications (disabled by default until the notification_level configuration option is set). For more information, see the notifications documentation in the developer’s guide (http://docs.openstack.org/developer/ironic/dev/notifications.html). Notifications are not actually emitted yet, but will be added in a future release.
+
+Adds support for InfiniBand networking to allow hardware inspection and PXE boot over InfiniBand.
+
+Add the field standalone_ports_supported to the portgroup object. This field indicates whether ports that are members of this portgroup can be used as stand-alone ports. The default is True.
+
+Added configdrive support for whole disk images for iSCSI based deploy. This will work for UEFI only or BIOS only images. It will not work for hybrid images which are capable of booting from BIOS and UEFI boot mode.
+
+Adds out-of-band inspection interface usable by DRAC drivers.
+
+Adds list_unfinished_jobs method to the vendor-passthru interface of the DRAC driver. It provides a way to check the status of the remote config job after a BIOS configuration change was submitted using the set_bios_config method.
+
+Adds out-of-band RAID management to DRAC driver using the generic RAID interface which makes the functionality available via manual cleaning steps.
+
+New configuration option, [drac]/query_raid_config_job_status_interval was added. After Ironic has created the RAID config job on the DRAC card, it continues to check for status update on the config job to determine whether the RAID configuration was successfully finished within this interval. Default is 120 seconds.
+
+Adds a new [deploy]/erase_devices_metadata_priority configuration option to allow operators to configure the priority of (or disable) the “erase_devices_metadata” cleaning step.
+
+By default, the ironic-conductor service caches the node’s deploy ramdisk and kernel images locally and serves them via a separate HTTP server. A new [pxe]/ipxe_use_swift configuration option (disabled by default) allows images to be accessed directly from object store via Swift temporary URLs. This is only applicable if iPXE is enabled (via [pxe]/ipxe_enabled configuration option) and image store is in Glance/Swift. For user images that are partition images requiring non-local boot, the default behavior with local caching and an HTTP server will still apply for user image kernel and ramdisk.
+
+Adds a new policy rule that may be used to mask instance-specific secrets, such as configdrive contents or the temp URL used to store a configdrive or instance image.  This is similar to how passwords are already masked.
+
+OneView drivers now support dynamic allocation of nodes in OneView, allowing for better resource sharing with non-OpenStack users since Server Hardware will be allocated only when the node is scheduled to be used. To enable the new allocation feature for a node, set the flag dynamic_allocation=True on the node’s driver_info. More information is available at http://docs.openstack.org/developer/ironic/drivers/oneview.html.
+
+Adds a resource_class field to the node resource, which will be used by Nova to define which nodes may quantitatively match a Nova flavor. Operators should populate this accordingly before deploying the Ocata version of Nova.
+
+Exposes the local_link_connection and pxe_enabled properties of the
+Port resource to the REST API, raising the API maximum version to 1.19.
+The pxe_enabled field indicates whether this Port should be used when
+PXE booting this Node.
+The local_link_connection field may be used to supply the port
+binding profile.
+
+
+
+The pxe_enabled field indicates whether this Port should be used when
+PXE booting this Node.
+The local_link_connection field may be used to supply the port
+binding profile.
+
+A new dictionary field internal_info is added to the port API object. It is readonly from the API side, and can contain any internal information ironic needs to store for the port. cleaning_vif_port_id is being stored inside this dictionary.
+
+Adds support for socat-based serial console to ipmitool-based drivers. These are available by using the agent_ipmitool_socat and pxe_ipmitool_socat drivers.
+
+The ironic-api service now supports logging audit messages of
+API calls. The following configuration parameters have been added.
+By default auditing of ironic-api service is turned off.
+
+[audit]/enabled
+[audit]/ignore_req_list
+[audit]/audit_map_file
+
+Further documentation for this feature is available at
+http://docs.openstack.org/developer/ironic/deploy/api-audit-support.html.
+
+
+[audit]/enabled
+[audit]/ignore_req_list
+[audit]/audit_map_file
+
+Adds support for collecting deployment logs from the IPA
+ramdisk. Five new configuration options were added:
+[agent]/deploy_logs_collect
+[agent]/deploy_logs_storage_backend
+[agent]/deploy_logs_local_path
+[agent]/deploy_logs_swift_container
+[agent]/deploy_logs_swift_days_to_expire.
+
+
+
+[agent]/deploy_logs_collect
+[agent]/deploy_logs_storage_backend
+[agent]/deploy_logs_local_path
+[agent]/deploy_logs_swift_container
+[agent]/deploy_logs_swift_days_to_expire.
+
+Ironic now emits timing metrics for all API methods to statsd, if enabled by the [metrics] and [metrics_statsd] configuration sections.
+
+RESTful access to every API resource may now be controlled by adjusting
+policy settings. Defaults are set in code, and remain backwards compatible
+with the previously-included policy.json file.  Two new roles are checked
+by default, “baremetal_admin” and “baremetal_observer”, though these may be
+replaced or overridden by configuration.  The “baremetal_observer” role
+grants read-only access to Ironic’s API.
+
+New API endpoint for deploy ramdisk lookup /v1/lookup. This endpoint is not authenticated to allow ramdisks to access it without passing the credentials to them.
+
+New API endpoint for deploy ramdisk heartbeat /v1/heartbeat/<NODE>. This endpoint is not authenticated to allow ramdisks to access it without passing the credentials to them.
+
+Adds multitenant networking support.
+Ironic now has the concept of “network interfaces” for a node, which
+represent a networking driver.
+There are three network interfaces available:
+
+flat: this replicates the old flat network behavior and is the default
+when using neutron for DHCP.
+noop: this replicates the old flat behavior when not using neutron for
+DHCP, and is the default when the configuration option
+[DHCP]/dhcp_provider is set to “none”.
+neutron: this allows for separating the provisioning and cleaning
+networks from the tenant networks, and provides isolation from tenant
+network to tenant network, and tenant network to control plane.
+The following configuration options must be set if the neutron interface
+is enabled, or ironic-conductor will fail to start:
+[neutron]/provisioning_network_uuid
+[neutron]/cleaning_network_uuid
+
+
+
+A [DEFAULT]/enabled_network_interfaces option (which must be set for
+both ironic-api and ironic-conductor services) controls which network
+interfaces are available for use.
+A network interface is set for a node by setting the network_interface
+field for the node via the REST API. This field is available in API version
+1.20 and above. Changing the network interface may only be done in the
+enroll, inspecting, and manageable states.
+The configuration option [DEFAULT]/default_network_interface may be
+used to specify which network interface is defined when a node is created.
+WARNING: don’t set the option ``[DEFAULT]/default_network_interface``
+before upgrading to this release without reading the upgrade notes about
+it, due to data migrations depending on the value.
+
+
+flat: this replicates the old flat network behavior and is the default
+when using neutron for DHCP.
+noop: this replicates the old flat behavior when not using neutron for
+DHCP, and is the default when the configuration option
+[DHCP]/dhcp_provider is set to “none”.
+neutron: this allows for separating the provisioning and cleaning
+networks from the tenant networks, and provides isolation from tenant
+network to tenant network, and tenant network to control plane.
+The following configuration options must be set if the neutron interface
+is enabled, or ironic-conductor will fail to start:
+[neutron]/provisioning_network_uuid
+[neutron]/cleaning_network_uuid
+
+
+
+[neutron]/provisioning_network_uuid
+[neutron]/cleaning_network_uuid
+
+Adds the ability for ironic conductor to pass configurations for agent metrics on lookup. When paired with a sufficiently new ironic python agent, this will configure the metrics backends.
+
+Extend the root device hints to identify whether a disk is rotational or not.
+
+Added support to validate iLO SSL certificate in iLO drivers. A new configuration option [ilo]/ca_file is added to specify the iLO CA certificate file. If [ilo]/ca_file is specified, the iLO drivers will validate iLO SSL certificates.
+
+Addition of the provision state target verb of adopt which allows an operator to move a node into an active state from manageable state, without performing a deployment operation on the node. This can be used to represent nodes that have been previously deployed by other means that will now be managed by ironic and be later released to the available hardware pool.
+
+A new configuration option [deploy]continue_if_disk_secure_erase_fails, which has a default value of False, has been added. If set to True, the Ironic Python Agent will revert to a disk shred operation if an ATA secure erase operation fails. Under normal circumstances, the failure of an ATA secure erase operation results in the node being put in clean failed state.
+
+IPA supported iSCSI portal port customization already. With this patch, we added new portal_port argument into agent_client.start_iscsi_target() method to pass iSCSI portal port to IPA side. And add new configuration into iscsi module as CONF.iscsi.portal_port
+
+Operators can now set deploy.power_off_after_deploy_failure to leave nodes powered on when a deployment fails. This is useful for troubleshooting deployment issues. As a note, Nova will still attempt to delete a node after a failed deployment, so deploy.power_off_after_deploy_failure may not be very effective in non-standalone deployments until a similar patch to ironic’s driver in nova is proposed.
+
+This adds the reboot_requested option for in-band cleaning. If set to true, Ironic will reboot the node after that step has completed and before continuing with the next step. This option is useful for when some action, such as a BIOS upgrade or setting change, requires a reboot to take effect.
+
+It is now possible to configure the notifications to use a different transport URL than the RPCs. These could potentially be completely different message broker hosts (though they don’t need to be). If the notification-specific configuration is not provided, the notifier will use the same transport as the RPCs.
+
+ipxe will now retry to download the kernel or the initrd in case of failure. The previous behavior was to give up and continue the boot on the next boot device. See https://bugs.launchpad.net/ironic/+bug/1326656
+
+Added support for JBOD volumes in RAID configuration.
+
+A new configuration option, shred_final_overwrite_with_zeros is now available. This option controls the final overwrite with zeros done on all block devices for a node under cleaning. This feature was previously always enabled and not configurable. This option is only used when a block device could not be ATA Secure Erased.
+
+Adds the ability for node vendor passthru methods to use shared locks. Default behavior of always acquiring an exclusive lock for node vendor passthru methods is unchanged.

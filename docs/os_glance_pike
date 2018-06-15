@@ -1,0 +1,20 @@
+
+The image-list call to the Images v2 API now recognizes a protected
+query-string parameter.  This parameter accepts only two values: either
+true or false.  The filter is case-sensitive.  Any other value
+will result in a 400 response to the request.  See the protected filter
+specification document for details.
+
+A new policy, tasks_api_access has been introduced so that ordinary
+user credentials may be used by Glance to manage the tasks that accomplish
+the interoperable image import process without requiring that operators
+expose the Tasks API to end users.
+
+Glance is now packaged with a WSGI script entrypoint, enabling it to be
+run as a WSGI application hosted by a performant web server.  See Running
+Glance in HTTPD
+in the Glance documentation for details.
+There are some limitations with this method of deploying Glance and we
+do not recommend its use in production environments at this time.  See
+the Known Issues section of this document for more information.
+

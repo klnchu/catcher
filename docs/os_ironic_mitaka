@@ -1,0 +1,68 @@
+
+Adds support for partition images for agent based drivers.
+
+Adds support to pass a optional CA certificate using [glance]glance_cafile configuration option to validate the SSL certificate served by glance for secured https communication between Glance and Ironic.
+
+Append request_id as Openstack-Request-Id header to the response.
+
+Add support for ipmitool’s port (-p) option. This allows ipmitool support for operators that do not use the default port (623) as their IPMI port.
+
+Pass proxy information from agent driver to IPA ramdisk, so that images can be cached on the proxy server.
+
+Add support for a new capability called ‘disk_label’ to allow operators to choose the disk label that will be used when Ironic is partitioning the disk.
+
+iLO drivers now provide out-of-band firmware update as a manual cleaning step, for supported hardware components.
+
+Support for activation of iLO Advanced license as a manual cleaning step in iLO drivers.
+
+Enabled Inspector Inspection for CIMC and UCS drivers
+
+Adds support for using iPXE in UEFI mode.
+
+Add the ability to adjust ipxe timeout during image downloading, default is still unlimited (0).
+
+Adds out-of-band inspection support for iRMC drivers.
+
+Add support for filtering nodes using the same driver via the API.
+
+Adds support for manual cleaning. This is available with API version 1.15. For more information, see http://docs.openstack.org/developer/ironic/deploy/cleaning.html#manual-cleaning
+
+Root device hints extended to support the device name.
+
+Database migrations downgrade support was removed. More info about database migration/rollback could be found here http://docs.openstack.org/openstack-ops/content/ops_upgrades-roll-back.html
+
+Adds ShellinaboxConsole support for virsh SSH driver.
+
+Adds an agent_iboot driver to allow use of the Iboot power driver with the Agent deploy driver.
+
+Adds experimental support for IPv6 PXE booting. This is configurable via the [pxe]ip_version configuration option.
+
+Adds agent_pxe_oneview and iscsi_pxe_oneview drivers for integration with the HP OneView Management System.
+
+The ironic-api service now supports SSL when running the service directly (as opposed to behind mod_wsgi or similar).
+
+Adds an agent_wol driver that combines the Agent deploy interface with the Wake-On-LAN power driver.
+
+Adds inspection support for the agent_ipmitool and agent_ssh drivers.
+
+The Agent deploy driver now streams raw images directly to disk (instead of staging in memory) by default.
+
+Adds support for in-band clean steps in the iSCSI deploy driver, when using ironic-python-agent as the ramdisk.
+
+Adds support for using Glance with a Ceph backend via the RADOS Gateway Swift API, with the Agent deploy driver.
+
+The API root endpoint (GET /) now returns version
+information for the server; specifically:
+min_version - minimum API version supported by the server;
+version - maximum API version supported by the server;
+status - version status, “CURRENT” for v1.
+
+
+
+min_version - minimum API version supported by the server;
+version - maximum API version supported by the server;
+status - version status, “CURRENT” for v1.
+
+Adds root device hints for wwn_with_extension and wwn_vendor_extension.
+
+Adds support to the SSH power driver for XenServer VMs.

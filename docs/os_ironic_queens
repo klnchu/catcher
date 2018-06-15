@@ -1,0 +1,374 @@
+
+The ilo-pxe and ilo-virtual-media boot interfaces now support firmware-based booting from iSCSI volume in UEFI boot mode. Requires proliantutils library version 2.5.0 or newer.
+
+Adds missing ilo vendor interface to the ilo hardware type.
+
+Adds support for routed networks when using the flat network interface. This feature requires the baremetal ML2 mechanism driver and L2 agent from the networking-baremetal plugin. See the networking configuration documentation for more details.
+
+Adds a traits field to the node resource, which will be used by the
+Compute service to define which nodes may match a Compute flavor using
+qualitative attributes.
+The following new endpoints have been added to the Bare Metal REST API in
+version 1.37:
+
+GET /v1/nodes/<node identifier>/traits lists the traits for a node.
+PUT /v1/nodes/<node identifier>/traits sets all traits for a node.
+PUT /v1/nodes/<node identifier>/traits/<trait> adds a trait to a
+node.
+DELETE /v1/nodes/<node identifier>/traits removes all traits from a
+node.
+DELETE /v1/nodes/<node identifier>/traits/<trait> removes a trait
+from a node.
+
+A node’s traits are also included in the following node query and list
+responses:
+
+GET /v1/nodes/<node identifier>
+GET /v1/nodes/detail
+GET /v1/nodes?fields=traits
+
+Traits cannot be specified on node creation, nor can they be updated via a
+PATCH request on the node.
+
+
+GET /v1/nodes/<node identifier>/traits lists the traits for a node.
+PUT /v1/nodes/<node identifier>/traits sets all traits for a node.
+PUT /v1/nodes/<node identifier>/traits/<trait> adds a trait to a
+node.
+DELETE /v1/nodes/<node identifier>/traits removes all traits from a
+node.
+DELETE /v1/nodes/<node identifier>/traits/<trait> removes a trait
+from a node.
+
+GET /v1/nodes/<node identifier>
+GET /v1/nodes/detail
+GET /v1/nodes?fields=traits
+
+Adds support for timeout parameter when powering on/off or rebooting
+a bare metal node managed by the oneview hardware type.
+
+Adds support for rescuing and unrescuing nodes:
+Adds version 1.38 of the Bare Metal API, which includes:
+A node in the active provision state can be rescued via the
+GET /v1/nodes/{node_ident}/states/provision API, by specifying
+rescue as the target value, and a rescue_password
+value. When the node has been rescued, it will be in the rescue
+provision state. A rescue ramdisk will be running, configured with
+the specified rescue_password, and listening with ssh on the
+tenant network.
+A node in the rescue provision state can be unrescued (to the
+active state) via the
+GET /v1/nodes/{node_ident}/states/provision API, by specifying
+unrescue as the target value.
+The rescue_interface field of the node resource. A rescue
+interface can be set when creating or updating a node.
+The default_rescue_interface and enabled_rescue_interfaces
+fields of the driver resource.
+
+
+Adds new configuration options for the rescue feature:
+Rescue interfaces are enabled via
+[DEFAULT]/enabled_rescue_interfaces. A default rescue interface
+to use when creating or updating nodes can be specified with
+[DEFAULT]/enabled_rescue_interfaces.
+Adds [conductor]/check_rescue_state_interval and
+[conductor]/rescue_callback_timeout to fail the rescue operation
+upon timeout, for the nodes that are stuck in the rescue wait state.
+Adds support for providing rescuing network (UUIR or name) with its
+security groups using new options [neutron]/rescuing_network and
+[neutron]/rescuing_network_security_groups respectively. It is
+required to provide [neutron]/rescuing_network. Alternatively,
+the rescuing network can be provided per node via the node’s
+driver_info['rescuing_network'] field.
+
+
+Adds rescue_interface field to the following node-related
+notifications:
+baremetal.node.create.*, new payload version 1.3
+baremetal.node.update.*, new payload version 1.3
+baremetal.node.delete.*, new payload version 1.3
+baremetal.node.maintenance.*, new payload version 1.5
+baremetal.node.console.*, new payload version 1.5
+baremetal.node.power_set.*, new payload version 1.5
+baremetal.node.power_state_corrected.*, new payload version 1.5
+baremetal.node.provision_set.*, new payload version 1.5
+
+
+
+
+
+Adds version 1.38 of the Bare Metal API, which includes:
+A node in the active provision state can be rescued via the
+GET /v1/nodes/{node_ident}/states/provision API, by specifying
+rescue as the target value, and a rescue_password
+value. When the node has been rescued, it will be in the rescue
+provision state. A rescue ramdisk will be running, configured with
+the specified rescue_password, and listening with ssh on the
+tenant network.
+A node in the rescue provision state can be unrescued (to the
+active state) via the
+GET /v1/nodes/{node_ident}/states/provision API, by specifying
+unrescue as the target value.
+The rescue_interface field of the node resource. A rescue
+interface can be set when creating or updating a node.
+The default_rescue_interface and enabled_rescue_interfaces
+fields of the driver resource.
+
+
+Adds new configuration options for the rescue feature:
+Rescue interfaces are enabled via
+[DEFAULT]/enabled_rescue_interfaces. A default rescue interface
+to use when creating or updating nodes can be specified with
+[DEFAULT]/enabled_rescue_interfaces.
+Adds [conductor]/check_rescue_state_interval and
+[conductor]/rescue_callback_timeout to fail the rescue operation
+upon timeout, for the nodes that are stuck in the rescue wait state.
+Adds support for providing rescuing network (UUIR or name) with its
+security groups using new options [neutron]/rescuing_network and
+[neutron]/rescuing_network_security_groups respectively. It is
+required to provide [neutron]/rescuing_network. Alternatively,
+the rescuing network can be provided per node via the node’s
+driver_info['rescuing_network'] field.
+
+
+Adds rescue_interface field to the following node-related
+notifications:
+baremetal.node.create.*, new payload version 1.3
+baremetal.node.update.*, new payload version 1.3
+baremetal.node.delete.*, new payload version 1.3
+baremetal.node.maintenance.*, new payload version 1.5
+baremetal.node.console.*, new payload version 1.5
+baremetal.node.power_set.*, new payload version 1.5
+baremetal.node.power_state_corrected.*, new payload version 1.5
+baremetal.node.provision_set.*, new payload version 1.5
+
+
+
+A node in the active provision state can be rescued via the
+GET /v1/nodes/{node_ident}/states/provision API, by specifying
+rescue as the target value, and a rescue_password
+value. When the node has been rescued, it will be in the rescue
+provision state. A rescue ramdisk will be running, configured with
+the specified rescue_password, and listening with ssh on the
+tenant network.
+A node in the rescue provision state can be unrescued (to the
+active state) via the
+GET /v1/nodes/{node_ident}/states/provision API, by specifying
+unrescue as the target value.
+The rescue_interface field of the node resource. A rescue
+interface can be set when creating or updating a node.
+The default_rescue_interface and enabled_rescue_interfaces
+fields of the driver resource.
+
+Rescue interfaces are enabled via
+[DEFAULT]/enabled_rescue_interfaces. A default rescue interface
+to use when creating or updating nodes can be specified with
+[DEFAULT]/enabled_rescue_interfaces.
+Adds [conductor]/check_rescue_state_interval and
+[conductor]/rescue_callback_timeout to fail the rescue operation
+upon timeout, for the nodes that are stuck in the rescue wait state.
+Adds support for providing rescuing network (UUIR or name) with its
+security groups using new options [neutron]/rescuing_network and
+[neutron]/rescuing_network_security_groups respectively. It is
+required to provide [neutron]/rescuing_network. Alternatively,
+the rescuing network can be provided per node via the node’s
+driver_info['rescuing_network'] field.
+
+baremetal.node.create.*, new payload version 1.3
+baremetal.node.update.*, new payload version 1.3
+baremetal.node.delete.*, new payload version 1.3
+baremetal.node.maintenance.*, new payload version 1.5
+baremetal.node.console.*, new payload version 1.5
+baremetal.node.power_set.*, new payload version 1.5
+baremetal.node.power_state_corrected.*, new payload version 1.5
+baremetal.node.provision_set.*, new payload version 1.5
+
+Allows specifying the provisioning and cleaning networks on a node as
+driver_info['cleaning_network'] and
+driver_info['provisioning_network'] respectively. If these
+values are defined in the node’s driver_info at the time of
+provisioning or cleaning the baremetal node, they will be used.
+Otherwise, the configuration options cleaning_network and
+provisioning_network are used as before.
+
+Enables support for soft power off and soft
+reboot in the oneview hardware type.
+
+Adds the new xclarity hardware type for managing Lenovo server
+hardware with the following interfaces:
+management: xclarity
+power: xclarity
+
+
+
+management: xclarity
+power: xclarity
+
+Adds a new ansible deploy interface. It targets mostly undercloud
+use-case by allowing greater customization of provisioning process.
+This new deploy interface is usable only with hardware types.
+It is set as supported for a generic hardware type and all
+its subclasses, but must be explicitly enabled in the
+[DEFAULT]enabled_deploy_interfaces configuration file option
+to actually allow setting nodes to use it.
+For migration from the staging-ansible interface from the
+ironic-staging-drivers project to this ansible interface,
+operators have to consider the following differences:
+
+Callback-less operation is not supported.
+Node’s driver_info fields ansible_deploy_username and
+ansible_deploy_key_file are deprecated and will be removed
+in the Rocky release. Instead, please use ansible_username and
+ansible_key_file respectively.
+Base path for playbooks can be defined in the node’s
+driver_info['ansible_playbooks_path'] field. The default is the value
+of the [ansible]/playbooks_path option from the ironic configuration
+file.
+Default playbooks for actions and cleaning steps file can be set in
+ironic configuration file as various [ansible]/default_* options.
+
+
+
+Callback-less operation is not supported.
+Node’s driver_info fields ansible_deploy_username and
+ansible_deploy_key_file are deprecated and will be removed
+in the Rocky release. Instead, please use ansible_username and
+ansible_key_file respectively.
+Base path for playbooks can be defined in the node’s
+driver_info['ansible_playbooks_path'] field. The default is the value
+of the [ansible]/playbooks_path option from the ironic configuration
+file.
+Default playbooks for actions and cleaning steps file can be set in
+ironic configuration file as various [ansible]/default_* options.
+
+Adds new configuration option [DEFAULT]default_resource_class that
+specifies the resource class to use for new nodes when no resource class
+is provided in the node creation request.
+
+If the [glance]swift_account option is not set, the default value is
+now calculated based on the ID of the project used to access the object
+store.  Previously this option was required. This change does not affect
+using RadosGW as an object store backend.
+
+If the [glance]swift_temp_url_key option is not set, ironic now tries
+to fetch the key from the project used to access swift (often
+called service). This change does not affect using RadosGW as an
+object store backend.
+
+If the [glance]swift_endpoint_url option is not set, ironic now tries
+to fetch the Object Store service URL from the service catalog. The
+/v1/AUTH_* suffix is stripped, if present.
+
+Adds new capabilities (server_model, rom_firmware_version,
+pci_gpu_devices, trusted_boot and irmc_firmware_version) to
+the iRMC out-of-band hardware inspection for FUJITSU PRIMERGY bare metal
+nodes with firmware iRMC S4 and newer.
+
+Adds the ability to set keystoneauth settings for automatic service
+discovery in the following configuration sections: [glance],
+[cinder], [inspector], [swift] and [neutron].
+
+Adds support to provision an instance in secure boot mode for
+irmc-virtual-media boot interface. For details, see the iRMC driver documentation.
+
+Adds a new hardware type, idrac, for Dell EMC integrated Dell Remote
+Access Controllers (iDRAC). idrac hardware type supports PXE-based
+provisioning using an iDRAC. It supports the following driver interfaces:
+boot: pxe
+console: no-console
+deploy: iscsi and direct
+inspect: idrac, inspector, and no-inspect
+management: idrac
+network: flat, neutron, and noop
+power:  idrac
+raid: idrac and no-raid
+storage: noop and cinder
+vendor: idrac
+
+
+
+boot: pxe
+console: no-console
+deploy: iscsi and direct
+inspect: idrac, inspector, and no-inspect
+management: idrac
+network: flat, neutron, and noop
+power:  idrac
+raid: idrac and no-raid
+storage: noop and cinder
+vendor: idrac
+
+To facilitate automatic discovery of services from the service catalog,
+the configuration file sections for service clients may include these
+configuration options: service_type, service_name,
+valid_interfaces, region_name and other keystoneauth options.
+These options together must uniquely specify an endpoint for a service
+registered in the service catalog. Alternatively, the endpoint_override
+option can be used to specify the endpoint.
+Consult the keystoneauth library documentation for a full list of
+available options, their meaning and possible values.
+Default values for service_type are set by ironic to sane defaults
+based on required services and their entries in the service types
+authority.
+The valid_interfaces option defaults to ['internal', 'public'].
+The region_name option defaults to None and must be explicitly set
+for multi-regional setup for endpoint discovery to succeed.
+Currently only the [service_catalog] section supports these options.
+
+
+Adds support for the following Boolean capabilities keys to
+the ilo inspect interface:
+sriov_enabled
+has_ssd
+has_rotational
+rotational_drive_4800_rpm
+rotational_drive_5400_rpm
+rotational_drive_7200_rpm
+rotational_drive_10000_rpm
+rotational_drive_15000_rpm
+logical_raid_level_0
+logical_raid_level_1
+logical_raid_level_2
+logical_raid_level_10
+logical_raid_level_5
+logical_raid_level_6
+logical_raid_level_50
+logical_raid_level_60
+cpu_vt
+hardware_supports_raid
+has_nvme_ssd
+nvdimm_n
+logical_nvdimm_n
+persistent_memory
+
+
+
+sriov_enabled
+has_ssd
+has_rotational
+rotational_drive_4800_rpm
+rotational_drive_5400_rpm
+rotational_drive_7200_rpm
+rotational_drive_10000_rpm
+rotational_drive_15000_rpm
+logical_raid_level_0
+logical_raid_level_1
+logical_raid_level_2
+logical_raid_level_10
+logical_raid_level_5
+logical_raid_level_6
+logical_raid_level_50
+logical_raid_level_60
+cpu_vt
+hardware_supports_raid
+has_nvme_ssd
+nvdimm_n
+logical_nvdimm_n
+persistent_memory
+
+Starting with the Bare Metal API version 1.35, it is possible to provide
+a configdrive when rebuilding a node.
+
+Adds SNMP request timeout and retries settings for the SNMP UDP transport. Some SNMP devices take longer than others to respond. The new Ironic configuration settings [snmp]/udp_transport_retries and [snmp]/udp_transport_timeout allow to change the number of retries and the timeout values respectively for the SNMP driver.
+
+iLO drivers now support firmware update based on Smart Update Manager (SUM) as an in-band manual cleaning step update_firmware_sum for all the hardware components.

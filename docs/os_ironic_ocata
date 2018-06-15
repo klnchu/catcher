@@ -1,0 +1,378 @@
+
+Adds support for removing the chassis UUID associated with a node (via PATCH /v1/nodes/<ident>). This is available starting with API version 1.25.
+
+Adds the use of DHCP option 210 (tftp-path-prefix). This enables PXE for systems using petitboot, which cannot infer their tftp-path-prefix from the boot file location as petitboot does not use a boot file.
+
+To enable SNMPv3 inspection in iLO drivers, the following parameters must be set in the node’s driver_info.
+* snmp_auth_user * snmp_auth_prot_password * snmp_auth_priv_password * snmp_auth_protocol (optional, defaults to iLO default value MD5) * snmp_auth_priv_protocol (optional, defaults to iLO default value DES)
+
+Adds the initial substrate to allow for the creation of storage
+interfaces. The default storage interface for nodes is noop,
+which routes to a no-op driver that is included with the substrate.
+
+Adds support for attaching and detaching network VIFs to ironic ports and port groups by using the /v1/nodes/<node>/vifs API endpoint that was added in API version 1.28. When attaching a VIF to a node, it is attached to the first free port group. A port group is considered free if it has no VIFs attached to any of its ports. Otherwise, only the unattached ports of this port group are available for attachment. If there are no free port groups, the first available port is used instead, where ports with pxe_enabled set to True have higher priority.
+
+Adds support for port groups with a new endpoint /v1/portgroups/.
+Ports can be combined into port groups to support static Link Aggregation
+Group (LAG) and Multi-Chassis LAG (MLAG) configurations.
+Note that if the optional mode field for a port group is not specified,
+its value will be set to the value of the configuration option
+[DEFAULT]default_portgroup_mode, which defaults to active-backup.
+Additionally, adds the following API changes:
+
+a new endpoint /v1/nodes/<node>/portgroups.
+a new endpoint /v1/portgroups/<portgroup>/ports.
+a new field portgroup_uuid on the port object. This is the UUID
+of a port group that this port belongs to, or None if it does not
+belong to any port group.
+
+All port group API functions are available starting with version 1.26 of
+the REST API.
+
+
+a new endpoint /v1/nodes/<node>/portgroups.
+a new endpoint /v1/portgroups/<portgroup>/ports.
+a new field portgroup_uuid on the port object. This is the UUID
+of a port group that this port belongs to, or None if it does not
+belong to any port group.
+
+Adds timing metrics to DRAC drivers.
+
+Adds timing metrics to iRMC drivers.
+
+Adds new option [deploy]/default_boot_option for setting the default boot option when no explicit boot option is requested via capabilities.
+
+Adds new methods to network interfaces, which will become
+mandatory in Pike release:
+vif_list: List attached VIF IDs for a node.
+vif_attach: Attach a virtual network interface to a node.
+vif_detach: Detach a virtual network interface from a node.
+
+port_changed: Handle any actions required when a port
+changes.
+
+
+portgroup_changed: Handle any actions required when a
+port group changes.
+get_current_vif: Return VIF ID attached to port or port group
+object.
+
+
+
+vif_list: List attached VIF IDs for a node.
+vif_attach: Attach a virtual network interface to a node.
+vif_detach: Detach a virtual network interface from a node.
+
+port_changed: Handle any actions required when a port
+changes.
+
+
+portgroup_changed: Handle any actions required when a
+port group changes.
+get_current_vif: Return VIF ID attached to port or port group
+object.
+
+Adds support for dynamic drivers. Using a dynamic driver in a node’s
+driver field is now possible. Dynamic drivers are composed of a
+hardware type and a number of hardware interfaces.
+NOTE: this feature is considered somewhat experimental, as not all classic
+drivers have a corresponding dynamic driver, and there is minimal CI
+for dynamic drivers at the time of this writing.
+Hardware types are enabled via the [DEFAULT]/enabled_hardware_types
+configuration option, and hardware interfaces are enabled via the
+[DEFAULT]/enabled_*_interfaces configuration option. A default
+interface to use when creating or updating nodes can be specified with the
+[DEFAULT]/default_*_interface configuration option.
+The ironic-conductor process will now fail to start if:
+
+a default interface implementation for any enabled hardware type cannot
+be found.
+a dynamic driver and a classic driver with the same name are both
+enabled.
+at least one classic driver or one dynamic driver is not enabled.
+
+Hardware types available in this release are:
+
+ipmi for IPMI-compatible hardware.  This type is enabled by default.
+Uses the ipmitool utility under the hood, similar to existing classic
+drivers pxe_ipmitool and agent_ipmitool. Supports both types of
+serial console: via shellinabox and via socat, both are disabled
+by default.
+irmc for FUJITSU PRIMERGY servers, disabled by default.
+
+This feature has a number of REST API changes, all of which are available
+in API version 1.31.
+
+Adds additional parameters and response fields for GET /v1/drivers and
+GET /v1/drivers/<name>.
+Exposes the following fields on the node resource, to allow getting and
+setting interfaces for a dynamic driver:
+boot_interface
+console_interface
+deploy_interface
+inspect_interface
+management_interface
+power_interface
+raid_interface
+vendor_interface
+
+
+Allows dynamic drivers to be used and returned in the following
+API calls, in all versions of the REST API:
+GET /v1/drivers
+GET /v1/drivers/<name>
+GET /v1/drivers/<name>/properties
+GET /v1/drivers/<name>/vendor_passthru/methods
+GET/POST /v1/drivers/<name>/vendor_passthru
+GET/POST /v1/nodes/<id>/vendor_passthru
+
+
+
+For more details on the REST API changes, see the REST API Version History
+documentation.
+This also adds dynamic interface fields to node-related notifications:
+
+boot_interface
+console_interface
+deploy_interface
+inspect_interface
+management_interface
+power_interface
+raid_interface
+vendor_interface
+
+The affected notifications are:
+
+baremetal.node.create.*, new payload version 1.1
+baremetal.node.update.*, new payload version 1.1
+baremetal.node.delete.*, new payload version 1.1
+baremetal.node.maintenance.*, new payload version 1.3
+baremetal.node.console.*, new payload version 1.3
+baremetal.node.power_set.*, new payload version 1.3
+baremetal.node.power_state_corrected.*, new payload version 1.3
+baremetal.node.provision_set.*, new payload version 1.3
+
+
+
+a default interface implementation for any enabled hardware type cannot
+be found.
+a dynamic driver and a classic driver with the same name are both
+enabled.
+at least one classic driver or one dynamic driver is not enabled.
+
+ipmi for IPMI-compatible hardware.  This type is enabled by default.
+Uses the ipmitool utility under the hood, similar to existing classic
+drivers pxe_ipmitool and agent_ipmitool. Supports both types of
+serial console: via shellinabox and via socat, both are disabled
+by default.
+irmc for FUJITSU PRIMERGY servers, disabled by default.
+
+Adds additional parameters and response fields for GET /v1/drivers and
+GET /v1/drivers/<name>.
+Exposes the following fields on the node resource, to allow getting and
+setting interfaces for a dynamic driver:
+boot_interface
+console_interface
+deploy_interface
+inspect_interface
+management_interface
+power_interface
+raid_interface
+vendor_interface
+
+
+Allows dynamic drivers to be used and returned in the following
+API calls, in all versions of the REST API:
+GET /v1/drivers
+GET /v1/drivers/<name>
+GET /v1/drivers/<name>/properties
+GET /v1/drivers/<name>/vendor_passthru/methods
+GET/POST /v1/drivers/<name>/vendor_passthru
+GET/POST /v1/nodes/<id>/vendor_passthru
+
+
+
+boot_interface
+console_interface
+deploy_interface
+inspect_interface
+management_interface
+power_interface
+raid_interface
+vendor_interface
+
+GET /v1/drivers
+GET /v1/drivers/<name>
+GET /v1/drivers/<name>/properties
+GET /v1/drivers/<name>/vendor_passthru/methods
+GET/POST /v1/drivers/<name>/vendor_passthru
+GET/POST /v1/nodes/<id>/vendor_passthru
+
+boot_interface
+console_interface
+deploy_interface
+inspect_interface
+management_interface
+power_interface
+raid_interface
+vendor_interface
+
+baremetal.node.create.*, new payload version 1.1
+baremetal.node.update.*, new payload version 1.1
+baremetal.node.delete.*, new payload version 1.1
+baremetal.node.maintenance.*, new payload version 1.3
+baremetal.node.console.*, new payload version 1.3
+baremetal.node.power_set.*, new payload version 1.3
+baremetal.node.power_state_corrected.*, new payload version 1.3
+baremetal.node.provision_set.*, new payload version 1.3
+
+Add hctl to root device hints. HCTL is the SCSI address and stands for Host, Channel, Target and Lun.
+
+Add support for the injection of Non-Masking Interrupts (NMI) for a node in REST API version 1.29. This feature can be used for hardware diagnostics, and actual support depends on the driver. In 7.0.0, this is available in the ipmitool and iRMC drivers.
+
+Adds support to deploy to nodes with different CPU architectures
+from a single conductor. This depends on
+two new configuration options, [pxe]/pxe_config_template_by_arch
+and [pxe]/pxe_bootfile_name_by_arch. Each is a
+dictionary mapping CPU architecture to PXE config template or
+PXE boot file name, respectively.
+As an example, the syntax might look like:
+pxe_config_template_by_arch=aarch64:pxe_grubaa64_config.template,ppc64:pxe_ppc64_config.template
+
+
+Ironic attempts to map the CPU architecture in this mapping to
+the properties/cpu_arch field for a node. If the node’s CPU
+architecture is not found in the mapping, ironic will fall back to
+the standard options pxe_config_template,
+pxe_bootfile_name, uefi_pxe_config_template,
+and uefi_pxe_bootfile_name.
+
+
+Adds new configuration option [conductor]/send_sensor_data_workers to allow concurrent sending of sensor data using the specified number of green threads. The [conductor]/wait_timeout_for_send_sensor_data configuration option is the time to wait for all spawned green threads before running the periodic task again.
+
+Names can now be used instead of UUIDs for [neutron]/cleaning_network and [neutron]/provisioning_network configuration options (formerly called [neutron]/cleaning_network_uuid and [neutron]/provisioning_network_uuid). Care has to be taken to ensure that the names are unique among all networks in this case. Note that the mapping between a name and a UUID is cached for the lifetime of the conductor.
+
+Adds in-band inspection interface usable by OneView drivers.
+
+Adds timing metrics to OneView drivers.
+
+Ironic is now configured to work with two oslo.policy CLI scripts that have
+been added.
+The first of these can be called like
+oslopolicy-list-redundant --namespace ironic and will output a list of
+policy rules in policy.[json|yaml] that match the project defaults. These
+rules can be removed from the policy file as they have no effect there.
+The second script can be called like
+oslopolicy-policy-generator --namespace ironic
+--output-file policy-merged.yaml
+and will populate the policy-merged.yaml file with the effective policy.
+This is the merged results of project defaults and config file overrides.
+
+
+The pxe_snmp and fake_snmp are now supported and tested.
+
+Agent lookup/heartbeat as vendor passthru is removed from most of
+in-tree ironic drivers. Affected drivers are
+
+agent_ipmitool
+agent_ipmitool_socat
+agent_ipminative
+agent_irmc
+agent_ssh
+agent_vbox
+agent_ucs
+pxe_agent_cimc
+pxe_ipmitool
+pxe_ipmitool_socat
+pxe_ssh
+pxe_ipminative
+pxe_seamicro
+pxe_snmp
+pxe_irmc
+pxe_vbox
+pxe_msftocs
+pxe_ucs
+pxe_iscsi_cimc
+pxe_drac
+pxe_drac_inspector
+iscsi_irmc
+agent_ilo
+iscsi_ilo
+pxe_ilo
+agent_pxe_oneview
+iscsi_pxe_oneview
+
+All the other vendor passthru methods are left in place if the
+driver had them.
+
+
+agent_ipmitool
+agent_ipmitool_socat
+agent_ipminative
+agent_irmc
+agent_ssh
+agent_vbox
+agent_ucs
+pxe_agent_cimc
+pxe_ipmitool
+pxe_ipmitool_socat
+pxe_ssh
+pxe_ipminative
+pxe_seamicro
+pxe_snmp
+pxe_irmc
+pxe_vbox
+pxe_msftocs
+pxe_ucs
+pxe_iscsi_cimc
+pxe_drac
+pxe_drac_inspector
+iscsi_irmc
+agent_ilo
+iscsi_ilo
+pxe_ilo
+agent_pxe_oneview
+iscsi_pxe_oneview
+
+Adds the following notifications:
+
+Creation, updates, or deletions of ironic resources
+(node, port and chassis). Event types are
+baremetal.<resource>.{create,update,delete}.{start,end,error}.
+Start and stop console on a node. Event types are
+baremetal.node.console_{set,restore}.{start,end,error}.
+Changes in node maintenance status. Event types are
+baremetal.node.maintenance_set.{start,end,error}.
+When ironic attempts to set the power state on the node. Event types are
+baremetal.node.power_set.{start,end,error}.
+When ironic detects the power state on baremetal hardware has changed
+and updates the node in the database appropriately. Event types are
+baremetal.node.power_state_corrected.success.
+Node provision state changes. Event types are
+baremetal.node.provision_set.{start,end,success,error}.
+
+These are only emitted when notifications are enabled.
+For more details, see the developer documentation:
+http://docs.openstack.org/developer/ironic/deploy/notifications.html.
+
+
+Creation, updates, or deletions of ironic resources
+(node, port and chassis). Event types are
+baremetal.<resource>.{create,update,delete}.{start,end,error}.
+Start and stop console on a node. Event types are
+baremetal.node.console_{set,restore}.{start,end,error}.
+Changes in node maintenance status. Event types are
+baremetal.node.maintenance_set.{start,end,error}.
+When ironic attempts to set the power state on the node. Event types are
+baremetal.node.power_set.{start,end,error}.
+When ironic detects the power state on baremetal hardware has changed
+and updates the node in the database appropriately. Event types are
+baremetal.node.power_state_corrected.success.
+Node provision state changes. Event types are
+baremetal.node.provision_set.{start,end,success,error}.
+
+Adds support for security groups for the provisioning and cleaning network. These are optionally specified by the configuration options [neutron]/provisioning_network_security_groups and [neutron]/cleaning_network_security_groups, respectively. If not specified, the default security group for the network is used. These options are only applicable for nodes using the “neutron” network interface. These options are ignored for nodes using the “flat” and “noop” network interfaces.
+
+Adds support for soft reboot and soft power off requests in REST API version 1.27. Also adds an optional timeout parameter to the node power state API. Adds a new configuration option [conductor]/soft_power_off_timeout to define the default timeout for soft power actions. In 7.0.0, this is supported for ipmitool and iRMC drivers.
+
+Adds support for using operators with the root device hints mechanism. The supported operators are, =, ==, !=, >=, <=, >, <, s==, s!=, s>=, s>, s<=, s<, <in>, <all-in> and <or>. See http://docs.openstack.org/project-install-guide/baremetal/draft/advanced.html#specifying-the-disk-for-deployment-root-device-hints
