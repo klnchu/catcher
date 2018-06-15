@@ -13,7 +13,7 @@ import (
 
 const OS_BASE_URL = "https://docs.openstack.org/releasenotes/"
 
-var components = []string{"nova", "neutron", "cinder"}
+var components = []string{"nova", "neutron", "cinder", "ironic", "glance"}
 var versions = []string{"liberty", "mitaka", "newton", "ocata", "pike", "queens"}
 
 
